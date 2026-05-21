@@ -18,7 +18,7 @@ Desenvolvido como material de apresentação acadêmica sobre estruturas de dado
 
 ## 🛠 Configuração do Ambiente
 
-### Linux (Ubuntu, Debian, Fedora, Arch, entre outros.)
+### Linux (Ubuntu, Debian, Fedora, Arch, entre outros)
 
 **1. Instalar o Rust com rustup**
 
@@ -90,11 +90,11 @@ y += 1;           // permitido
 ### Tipos comuns
 
 ```rust
-let inteiro: i32   = 42;       // número inteiro com sinal
-let positivo: usize = 3;       // número positivo — usado para índices
-let decimal: f64   = 3.14;     // número decimal
-let texto: &str    = "Rust";   // texto fixo
-let booleano: bool = true;     // verdadeiro ou falso
+let inteiro: i32    = 42;     // número inteiro com sinal
+let positivo: usize = 3;      // número positivo — usado para índices
+let decimal: f64    = 3.14;   // número decimal
+let texto: &str     = "Rust"; // texto fixo
+let booleano: bool  = true;   // verdadeiro ou falso
 ```
 
 ### Option — ausência segura
@@ -102,8 +102,8 @@ let booleano: bool = true;     // verdadeiro ou falso
 Rust não tem `null`. Quando um valor pode ou não existir, usa-se `Option<T>`:
 
 ```rust
-let com_valor: Option<i32> = Some(42);  // existe um valor
-let sem_valor: Option<i32> = None;       // não existe nada
+let com_valor: Option<i32> = Some(42); // existe um valor
+let sem_valor: Option<i32> = None;     // não existe nada
 ```
 
 Para usar o valor dentro de um `Option`:
@@ -238,20 +238,22 @@ prox:  [   1    ] [   2    ] [   0    ] [  0  ]   [  0  ]
                           aponta para 0 — fecha o ciclo
 ```
 
+A memória é **contígua** — todos os slots ficam lado a lado na memória, endereços sequenciais. A ordem lógica da lista é definida pelos ponteiros `prox`, não pela posição física no array.
+
 ### Construtor `new`
 
 ```rust
 pub fn new() -> Self {
     ListaCircular {
-        nos:     [None; MAX],  // todos os slots vazios
-        prox:    [0; MAX],     // índices zerados
-        cabeca:  None,         // sem primeiro nó
-        tamanho: 0,            // lista vazia
+        nos:     [None; MAX], // todos os slots vazios
+        prox:    [0; MAX],    // índices zerados
+        cabeca:  None,        // sem primeiro nó
+        tamanho: 0,           // lista vazia
     }
 }
 ```
 
-`Self` é um atalho para o nome da própria struct. `[None; MAX]` é a sintaxe do Rust para "crie um array de MAX posições, todas com o valor None".
+`Self` é um atalho para o nome da própria struct. `[None; MAX]` cria um array de MAX posições todas com o valor `None`.
 
 ### Auxiliares internos
 
@@ -277,7 +279,7 @@ fn achar_cauda(&self) -> usize {
 }
 ```
 
-**`idx_na`** — caminha `pos` passos a partir da cabeça e retorna o índice:
+**`idx_na`** — caminha `pos` passos a partir da cabeça e retorna o índice físico:
 
 ```rust
 fn idx_na(&self, pos: usize) -> usize {
@@ -291,23 +293,23 @@ fn idx_na(&self, pos: usize) -> usize {
 
 ```rust
 pub fn inserir_inicio(&mut self, valor: T) {
-    if self.tamanho == MAX { return; }           // lista cheia?
+    if self.tamanho == MAX { return; }           // 1. lista cheia?
 
-    let slot = self.achar_slot_livre().unwrap(); // acha espaço vazio
-    self.nos[slot] = Some(valor);                // guarda o valor
+    let slot = self.achar_slot_livre().unwrap(); // 2. acha espaço vazio
+    self.nos[slot] = Some(valor);                // 3. guarda o valor
 
     if self.tamanho == 0 {
-        self.prox[slot] = slot;                  // único nó aponta para si
+        self.prox[slot] = slot;                  // 4. único nó aponta para si
         self.cabeca = Some(slot);
     } else {
         let cabeca = self.cabeca.unwrap();
         let cauda  = self.achar_cauda();
-        self.prox[slot] = cabeca;                // novo → antiga cabeça
-        self.prox[cauda] = slot;                 // cauda → novo
-        self.cabeca = Some(slot);                // novo vira a cabeça
+        self.prox[slot] = cabeca;                // 5. novo → antiga cabeça
+        self.prox[cauda] = slot;                 //    cauda → novo
+        self.cabeca = Some(slot);                //    novo vira a cabeça
     }
 
-    self.tamanho += 1;
+    self.tamanho += 1;                           // 6. incrementa o tamanho
 }
 ```
 
@@ -323,16 +325,23 @@ self.cabeca = Some(slot);  // ← atualiza a cabeça
 //               a cabeça continua apontando para o mesmo nó
 ```
 
-### Ler por posição
+### Ler próximo
+
+Recebe uma posição e retorna o valor do nó seguinte. Se for a cauda, retorna a cabeça — comportamento circular acontece naturalmente:
 
 ```rust
-pub fn ler(&self, pos: usize) -> Option<T> {
-    if pos >= self.tamanho { return None; } // posição inválida?
-    self.nos[self.idx_na(pos)]              // caminha até a posição e retorna
+pub fn ler_proximo(&self, pos: usize) -> Option<T> {
+    if self.tamanho == 0 || pos >= self.tamanho { return None; }
+    let idx = self.idx_na(pos);       // índice físico do nó na posição pos
+    self.nos[self.prox[idx]]          // valor do próximo nó
 }
 ```
 
-Não tem acesso direto como num array — precisa caminhar nó a nó. Por isso é **O(n)**.
+Exemplo com lista `[5] → [10] → [20] → [30]`:
+```
+ler_proximo(0) = 10   (próximo do 5)
+ler_proximo(3) = 5    (próximo do 30 volta para a cabeça)
+```
 
 ### Remover
 
@@ -348,24 +357,24 @@ pub fn remover(&mut self, pos: usize) -> Option<T> {
         return valor;
     }
 
-    // acha o nó a remover e o anterior
+    // descobre o nó a remover (rem) e o anterior (ant)
     let (rem, ant) = if pos == 0 {
-        (self.cabeca.unwrap(), self.achar_cauda()) // remover a cabeça
+        (self.cabeca.unwrap(), self.achar_cauda())
     } else {
         let a = self.idx_na(pos - 1);
-        (self.prox[a], a)                          // remover do meio/fim
+        (self.prox[a], a)
     };
 
-    self.prox[ant] = self.prox[rem];         // anterior pula o removido
-    if pos == 0 { self.cabeca = Some(self.prox[rem]); }
+    self.prox[ant] = self.prox[rem];                    // anterior pula o removido
+    if pos == 0 { self.cabeca = Some(self.prox[rem]); } // atualiza cabeça se necessário
 
-    let valor = self.nos[rem].take();        // libera o slot
+    let valor = self.nos[rem].take();  // libera o slot
     self.tamanho -= 1;
     valor
 }
 ```
 
-O `take()` retira o valor do `Option` e deixa `None` no lugar — libera o slot para uso futuro sem precisar mover nada no array.
+O `take()` retira o valor do `Option` e deixa `None` no lugar — libera o slot para uso futuro.
 
 ### Percorrer
 
@@ -374,16 +383,48 @@ pub fn percorrer(&self) {
     if self.tamanho == 0 { println!("lista vazia"); return; }
 
     let mut idx = self.cabeca.unwrap();
-    for i in 0..self.tamanho {           // exatamente N passos — sem loop infinito
+    for i in 0..self.tamanho {      // exatamente N passos — sem loop infinito
         print!("[{}]", self.nos[idx].unwrap());
         if i < self.tamanho - 1 { print!(" → "); }
-        idx = self.prox[idx];            // avança para o próximo
+        idx = self.prox[idx];       // avança para o próximo
     }
     println!(" → (HEAD)");
 }
 ```
 
-O `for` limitado ao `tamanho` é o que impede o loop infinito — sem ele, os ponteiros seriam seguidos para sempre porque o ciclo nunca termina.
+O `for` limitado ao `tamanho` é o que impede o loop infinito — sem ele os ponteiros seriam seguidos para sempre.
+
+### Tabela física
+
+Mostra o estado interno dos dois arrays — útil para entender a diferença entre ordem lógica e ordem física:
+
+```rust
+pub fn tabela_fisica(&self) {
+    println!("  idx │ nos      │ prox");
+    println!("  ────┼──────────┼──────");
+    for i in 0..MAX {
+        let val = match self.nos[i] {
+            Some(v) => format!("{:>8}", v),
+            None    => "  vazio  ".to_string(),
+        };
+        let head = if self.cabeca == Some(i) { " ← HEAD" } else { "" };
+        println!("   {}  │ {}  │  {}   │{}", i, val, self.prox[i], head);
+    }
+}
+```
+
+Exemplo de saída com lista `[5] → [10] → [20] → [30]`:
+```
+idx │ nos      │ prox
+────┼──────────┼──────
+ 0  │       10 │  1   │
+ 1  │       20 │  2   │
+ 2  │       30 │  3   │
+ 3  │        5 │  0   │ ← HEAD
+ 4  │   vazio  │  0   │
+```
+
+A ordem física no array é a ordem de inserção. A ordem lógica da lista começa pelo HEAD e segue os ponteiros `prox`.
 
 ### Menu interativo
 
@@ -391,21 +432,31 @@ O programa usa um `loop` — equivalente ao `do-while` de outras linguagens:
 
 ```rust
 loop {
-    imprimir_menu();                       // mostra as opções
-    io::stdin().read_line(&mut opcao);     // espera o usuário digitar
-    let opcao = opcao.trim();              // remove o \n do Enter
+    imprimir_menu();                        // mostra as opções
+    io::stdin().read_line(&mut opcao);      // espera o usuário digitar
+    let opcao = opcao.trim();               // remove o \n do Enter
 
     match opcao {
         "1" => lista.inserir_inicio(v),
         "2" => lista.inserir_fim(v),
-        "3" => lista.ler(pos),
+        "3" => lista.ler_proximo(pos),
         "4" => lista.remover(pos),
         "5" => lista.percorrer(),
-        "0" => break,                      // sai do loop
-        _   => println!("opção inválida"), // qualquer outra entrada
+        "6" => lista.tabela_fisica(),
+        "0" => break,                       // sai do loop
+        _   => println!("opção inválida"),  // qualquer outra entrada
     }
 }
 ```
+
+A leitura e conversão do valor digitado é feita diretamente:
+
+```rust
+let v: i32    = ler("valor").parse().unwrap();
+let pos: usize = ler("posição").parse().unwrap();
+```
+
+`parse()` converte a `String` para o tipo anotado. O tipo é inferido pela anotação `: i32` ou `: usize` na variável.
 
 ---
 

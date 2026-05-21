@@ -1,10 +1,8 @@
 use std::io;
-use std::io::Write; // necessário para flush do print!
+use std::io::Write;
 
-// ── tamanho máximo da lista ──────────────────────────────────
 const MAX: usize = 5;
 
-// ── Estrutura ────────────────────────────────────────────────
 struct ListaCircular<T: Copy + std::fmt::Display + PartialEq> {
     nos:     [Option<T>; MAX],
     prox:    [usize; MAX],
@@ -33,41 +31,38 @@ impl<T: Copy + std::fmt::Display + PartialEq> ListaCircular<T> {
     fn achar_cauda(&self) -> usize {
         let cab = self.cabeca.unwrap();
         let mut idx = cab;
-        while self.prox[idx] != cab { idx = self.prox[idx]; }
+        while self.prox[idx] != cab { idx = self.prox[idx]; } //
         idx
     }
 
-    fn idx_na(&self, pos: usize) -> usize {
-        let mut idx = self.cabeca.unwrap();
+    fn idx_na(&self, pos: usize) -> usize { 
+        let mut idx = self.cabeca.unwrap(); 
         for _ in 0..pos { idx = self.prox[idx]; }
         idx
     }
 
     pub fn inserir_inicio(&mut self, valor: T) {
-        if self.tamanho == MAX { // lista cheia?
+        if self.tamanho == MAX {
             println!("  ✗ lista cheia (máximo: {})", MAX);
             return;
         }
-
-        let slot = self.achar_slot_livre().unwrap(); // acha espaço vazio
-        self.nos[slot] = Some(valor); // guarda o valor
-
+        let slot = self.achar_slot_livre().unwrap();
+        self.nos[slot] = Some(valor);
         if self.tamanho == 0 {
-            self.prox[slot] = slot;  // aponta para si mesmo (Head)
+            self.prox[slot] = slot;
             self.cabeca = Some(slot);
         } else {
             let cabeca = self.cabeca.unwrap();
             let cauda  = self.achar_cauda();
-            self.prox[slot] = cabeca; // novo → antiga cabeça
-            self.prox[cauda] = slot; // cauda → novo
-            self.cabeca = Some(slot);  // novo vira a cabeça
+            self.prox[slot] = cabeca;
+            self.prox[cauda] = slot;
+            self.cabeca = Some(slot);
         }
-
         self.tamanho += 1;
         println!("  ✓ {} inserido no início", valor);
     }
 
-    pub fn inserir_fim(&mut self, valor: T) { // Mesma coisa que inserir_inicio, mas o novo nó vira a cauda
+    pub fn inserir_fim(&mut self, valor: T) {
         if self.tamanho == MAX {
             println!("  ✗ lista cheia (máximo: {})", MAX);
             return;
@@ -87,32 +82,32 @@ impl<T: Copy + std::fmt::Display + PartialEq> ListaCircular<T> {
         println!("  ✓ {} inserido no fim", valor);
     }
 
-    pub fn ler(&self, pos: usize) -> Option<T> {
-        if pos >= self.tamanho { return None; }
-        self.nos[self.idx_na(pos)]
+    // recebe uma posição e retorna o valor da posição seguinte
+    pub fn ler_proximo(&self, pos: usize) -> Option<T> {
+        if self.tamanho == 0 || pos >= self.tamanho { return None; }
+        let idx = self.idx_na(pos);
+        if (self.prox[idx] == self.cabeca.unwrap()) { print!("  próximo: (cabeça da lista)"); }
+        self.nos[self.prox[idx]]
     }
 
     pub fn remover(&mut self, pos: usize) -> Option<T> {
-        if pos >= self.tamanho { return None; } // posição inválida?
-
-        if self.tamanho == 1 { // único nó?
+        if pos >= self.tamanho { return None; }
+        if self.tamanho == 1 {
             let idx = self.cabeca.unwrap();
-            let valor = self.nos[idx].take(); // take() retira o valor e deixa None
+            let valor = self.nos[idx].take();
             self.cabeca = None;
             self.tamanho = 0;
             return valor;
         }
-
-        let (rem, ant) = if pos == 0 { // removendo a cabeça?
+        let (rem, ant) = if pos == 0 {
             (self.cabeca.unwrap(), self.achar_cauda())
         } else {
-            let a = self.idx_na(pos - 1); // acha o anterior
+            let a = self.idx_na(pos - 1);
             (self.prox[a], a)
         };
-
-        self.prox[ant] = self.prox[rem]; // anterior pula o removido
-        if pos == 0 { self.cabeca = Some(self.prox[rem]); } // atualiza cabeça
-        let valor = self.nos[rem].take(); // libera o slot
+        self.prox[ant] = self.prox[rem];
+        if pos == 0 { self.cabeca = Some(self.prox[rem]); }
+        let valor = self.nos[rem].take();
         self.tamanho -= 1;
         valor
     }
@@ -124,121 +119,101 @@ impl<T: Copy + std::fmt::Display + PartialEq> ListaCircular<T> {
         }
         print!("  HEAD → ");
         let mut idx = self.cabeca.unwrap();
-        for i in 0..self.tamanho { // exatamente N passos
+        for i in 0..self.tamanho {
             print!("[{}]", self.nos[idx].unwrap());
             if i < self.tamanho - 1 { print!(" → "); }
-            idx = self.prox[idx]; // avança para o próximo
+            idx = self.prox[idx];
         }
         println!(" → (HEAD)");
         println!("  tamanho: {}/{}", self.tamanho, MAX);
     }
+
+    // mostra o estado físico dos dois arrays internos
+    pub fn tabela_fisica(&self) {
+        println!("  idx │ nos      │ prox");
+        println!("  ────┼──────────┼──────");
+        for i in 0..MAX {
+            let val = match self.nos[i] {
+                Some(v) => format!("{:>8}", v),
+                None    => "  vazio  ".to_string(),
+            };
+            let head = if self.cabeca == Some(i) { " ← HEAD" } else { "" };
+            println!("   {}  │ {}  │  {}   │{}", i, val, self.prox[i], head);
+        }
+    }
 }
 
-// ── Funções do menu ──────────────────────────────────────────
+// lê uma linha do terminal e já converte para o tipo pedido
+fn ler(mensagem: &str) -> String {
+    print!("  {}: ", mensagem);
+    io::stdout().flush().unwrap();
+    let mut entrada = String::new();
+    io::stdin().read_line(&mut entrada).unwrap();
+    entrada.trim().to_string()
+}
 
-// imprime o menu de opções
 fn imprimir_menu() {
     println!("\n╔══════════════════════════════╗");
     println!("║     LISTA CIRCULAR ESTÁTICA  ║");
     println!("╠══════════════════════════════╣");
     println!("║  1 - Inserir no início       ║");
     println!("║  2 - Inserir no fim          ║");
-    println!("║  3 - Ler por posição         ║");
+    println!("║  3 - Ler próximo de uma pos  ║");
     println!("║  4 - Remover por posição     ║");
-    println!("║  5 - Mostrar lista           ║");
+    println!("║  5 - Mostrar lista           ║
+║  6 - Tabela física           ║");
     println!("║  0 - Sair                    ║");
     println!("╚══════════════════════════════╝");
     print!("  Escolha: ");
-    // flush garante que o print! apareça antes de ler a entrada
     io::stdout().flush().unwrap();
 }
 
-// lê uma linha do terminal e converte para i32
-// retorna None se a entrada não for um número válido
-fn ler_i32(mensagem: &str) -> Option<i32> {
-    print!("  {}: ", mensagem);
-    io::stdout().flush().unwrap();
-
-    let mut entrada = String::new();
-    io::stdin().read_line(&mut entrada).unwrap(); // lê o que o usuário digitou
-
-    // trim() remove o \n do final da linha e parse::<i32>() tenta converter para i32
-    entrada.trim().parse::<i32>().ok()
-}
-
-// lê uma linha do terminal e converte para usize (índice)
-fn ler_usize(mensagem: &str) -> Option<usize> {
-    print!("  {}: ", mensagem);
-    io::stdout().flush().unwrap();
-
-    let mut entrada = String::new();
-    io::stdin().read_line(&mut entrada).unwrap();
-
-    entrada.trim().parse::<usize>().ok()
-}
-
-// ── Main com loop de menu ────────────────────────────────────
 fn main() {
     let mut lista: ListaCircular<i32> = ListaCircular::new();
 
-    // loop equivalente ao do-while: executa pelo menos uma vez
-    // e continua enquanto o usuário não escolher 0
     loop {
         imprimir_menu();
 
-        // lê a opção digitada
         let mut opcao = String::new();
         io::stdin().read_line(&mut opcao).unwrap();
         let opcao = opcao.trim();
 
-        println!(); // linha em branco para separar
+        println!();
 
         match opcao {
             "1" => {
-                // inserir no início
-                match ler_i32("valor") {
-                    Some(v) => lista.inserir_inicio(v),
-                    None    => println!("  ✗ valor inválido"),
-                }
+                let v: i32 = ler("valor").parse().unwrap();
+                lista.inserir_inicio(v);
             }
             "2" => {
-                // inserir no fim
-                match ler_i32("valor") {
-                    Some(v) => lista.inserir_fim(v),
-                    None    => println!("  ✗ valor inválido"),
-                }
+                let v: i32 = ler("valor").parse().unwrap();
+                lista.inserir_fim(v);
             }
             "3" => {
-                // ler por posição
-                match ler_usize("posição") {
-                    Some(pos) => match lista.ler(pos) {
-                        Some(v) => println!("  ler({}) = {}", pos, v),
-                        None    => println!("  ✗ posição {} não existe (tamanho: {})", pos, lista.tamanho),
-                    },
-                    None => println!("  ✗ posição inválida"),
+                let pos: usize = ler("posição").parse().unwrap();
+                match lista.ler_proximo(pos) {
+                    Some(v) => println!("  próximo de [{}] = {}", pos, v),
+                    None    => println!("  ✗ posição {} não existe (tamanho: {})", pos, lista.tamanho),
                 }
             }
             "4" => {
-                // remover por posição
-                match ler_usize("posição") {
-                    Some(pos) => match lista.remover(pos) {
-                        Some(v) => println!("  ✓ removido: {}", v),
-                        None    => println!("  ✗ posição {} não existe (tamanho: {})", pos, lista.tamanho),
-                    },
-                    None => println!("  ✗ posição inválida"),
+                let pos: usize = ler("posição").parse().unwrap();
+                match lista.remover(pos) {
+                    Some(v) => println!("  ✓ removido: {}", v),
+                    None    => println!("  ✗ posição {} não existe (tamanho: {})", pos, lista.tamanho),
                 }
             }
             "5" => {
-                // mostrar lista
                 lista.percorrer();
             }
+            "6" => {
+                lista.tabela_fisica();
+            }
             "0" => {
-                // sair — quebra o loop
                 println!("  Saindo...");
                 break;
             }
             _ => {
-                // qualquer outra entrada
                 println!("  ✗ opção inválida, tente novamente");
             }
         }
