@@ -22,28 +22,28 @@ impl<T: Copy + std::fmt::Display + PartialEq> ListaCircular<T> {
 
     //Auxiliar para encontrar o primeiro slot livre no array de nós
     fn achar_slot_livre(&self) -> Option<usize> {
-        for i in 0..MAX {
+        for i in 0..MAX { 
             if self.nos[i].is_none() {
                 return Some(i);
             }
         }
-        None
+        None // nenhum slot livre encontrado
     }
 
     //Auxiliar para encontrar o índice da cauda (último elemento) da lista
     fn achar_cauda(&self) -> usize {
-        let cab = self.cabeca.unwrap();
+        let cab = self.cabeca.unwrap(); //Começa pela cabeça
         let mut idx = cab;
-        while self.prox[idx] != cab {
-            idx = self.prox[idx];
+        while self.prox[idx] != cab { // enquanto não voltar à cabeça
+            idx = self.prox[idx]; // Avança para o próximo
         }
         idx
     }
 
     // Auxiliar para encontrar o índice do elemento na posição lógica dada
     fn idx_na(&self, pos: usize) -> usize {
-        let mut idx = self.cabeca.unwrap();
-        for _ in 0..pos {
+        let mut idx = self.cabeca.unwrap();  // começa na cabeça (posição 0)
+        for _ in 0..pos { // avança 'pos' vezes
             idx = self.prox[idx];
         }
         idx
@@ -105,9 +105,12 @@ impl<T: Copy + std::fmt::Display + PartialEq> ListaCircular<T> {
     }
 
     pub fn remover(&mut self, pos: usize) -> Option<T> {
+        // CENÁRIO A — posição inválida
         if pos >= self.tamanho {
             return None;
         }
+
+        // CENÁRIO B — lista com UM único elemento
         if self.tamanho == 1 {
             let idx = self.cabeca.unwrap();
             let valor = self.nos[idx].take();
@@ -115,15 +118,18 @@ impl<T: Copy + std::fmt::Display + PartialEq> ListaCircular<T> {
             self.tamanho = 0;
             return valor;
         }
+        
+        // CENÁRIO C — lista com 2+ elementos
         let (rem, ant) = if pos == 0 {
             (self.cabeca.unwrap(), self.achar_cauda())
         } else {
-            let a = self.idx_na(pos - 1);
-            (self.prox[a], a)
+            let a = self.idx_na(pos - 1);  // acha o antecessor
+            (self.prox[a], a)  // (nó a remover, antecessor)
         };
-        self.prox[ant] = self.prox[rem];
+
+        self.prox[ant] = self.prox[rem];  // pula o nó removido
         if pos == 0 {
-            self.cabeca = Some(self.prox[rem]);
+            self.cabeca = Some(self.prox[rem]); // atualiza cabeça
         }
         let valor = self.nos[rem].take();
         self.tamanho -= 1;
