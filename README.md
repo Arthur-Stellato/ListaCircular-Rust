@@ -197,19 +197,19 @@ No { valor: 30, proximo: 0 }  // índice 0 = cabeça
 
 ### Por que usar lista circular?
 
-| Situação | Por quê a circular resolve |
-|---|---|
+| Situação                       | Por quê a circular resolve                                           |
+| ------------------------------ | -------------------------------------------------------------------- |
 | Escalonador de processos do SO | cada processo recebe um tempo de CPU e o ciclo volta automaticamente |
-| Buffer de áudio/vídeo em loop | o conteúdo se repete sem lógica extra |
-| Sistema de turnos em jogos | após o último jogador, volta para o primeiro |
+| Buffer de áudio/vídeo em loop  | o conteúdo se repete sem lógica extra                                |
+| Sistema de turnos em jogos     | após o último jogador, volta para o primeiro                         |
 
 ### Lista estática vs dinâmica
 
-| | Estática (array) | Dinâmica (Vec) |
-|---|---|---|
-| Tamanho | fixo — definido em `const MAX` | cresce conforme necessário |
-| Memória | reservada em tempo de compilação | alocada em tempo de execução |
-| Lista cheia | precisa verificar | impossível de estourar |
+|             | Estática (array)                 | Dinâmica (Vec)               |
+| ----------- | -------------------------------- | ---------------------------- |
+| Tamanho     | fixo — definido em `const MAX`   | cresce conforme necessário   |
+| Memória     | reservada em tempo de compilação | alocada em tempo de execução |
+| Lista cheia | precisa verificar                | impossível de estourar       |
 
 ### Gerenciamento de memória — Rust vs outras linguagens
 
@@ -243,13 +243,13 @@ Em Rust não tem alocação manual nem Garbage Collector — o compilador determ
 nos: [None; MAX] // liberado automaticamente quando sai do escopo
 ```
 
-| | C | C++ | Java | Rust |
-|---|---|---|---|---|
-| Aloca manualmente | sim | sim (dinâmico) | não | não |
-| Libera manualmente | sim | sim (dinâmico) | não | não |
-| Garbage Collector | não | não | sim | não |
-| Quem gerencia | programador | programador | JVM em runtime | compilador |
-| Custo em execução | zero | zero | sim (pausas do GC) | zero |
+|                    | C           | C++            | Java               | Rust       |
+| ------------------ | ----------- | -------------- | ------------------ | ---------- |
+| Aloca manualmente  | sim         | sim (dinâmico) | não                | não        |
+| Libera manualmente | sim         | sim (dinâmico) | não                | não        |
+| Garbage Collector  | não         | não            | sim                | não        |
+| Quem gerencia      | programador | programador    | JVM em runtime     | compilador |
+| Custo em execução  | zero        | zero           | sim (pausas do GC) | zero       |
 
 ---
 
@@ -499,6 +499,70 @@ let pos: usize = ler("posição").parse().unwrap();
 `parse()` converte a `String` para o tipo anotado. O tipo é inferido pela anotação `: i32` ou `: usize` na variável.
 
 --- 
+
+## 🏋️ Desafio — Implementar o `atualizar`
+
+A lista ainda não tem uma operação de **atualização**. Sua missão é implementar o método abaixo diretamente em `lista_circular_menu.rs`.
+
+### Assinatura
+
+```rust
+pub fn atualizar(&mut self, pos: usize, novo_valor: T) -> bool {
+    // retorna true se atualizou, false se a posição não existe
+    todo!()
+}
+```
+
+### Esqueleto com dicas
+
+```rust
+pub fn atualizar(&mut self, pos: usize, novo_valor: T) -> bool {
+    // 1. verifique se a posição é válida
+    //    dica: compare pos com self.tamanho
+
+    // 2. ache o índice físico do nó na posição lógica dada
+    //    dica: você já tem um auxiliar que faz exatamente isso
+
+    // 3. substitua o valor armazenado naquele slot
+    //    dica: self.nos[idx] é um Option<T> — atribua Some(novo_valor)
+
+    // 4. retorne true indicando sucesso
+    todo!()
+}
+```
+
+### O que adicionar no `main`
+
+No `match opcao { ... }` dentro do `loop`, adicione um novo braço:
+
+```rust
+"7" => {
+    let pos: usize = ler("posição").parse().unwrap();
+    let v: i32     = ler("novo valor").parse().unwrap();
+    if lista.atualizar(pos, v) {
+        println!("posição {} atualizada para {}", pos, v);
+    } else {
+        println!("posição {} não existe (tamanho: {})", pos, lista.tamanho);
+    }
+}
+```
+
+E adicione a opção ao menu impresso:
+
+```rust
+println!("║  7 - Atualizar por posição   ║");
+```
+
+### Casos de teste
+
+| Operação           | Lista antes           | Resultado esperado   |
+| ------------------ | --------------------- | -------------------- |
+| `atualizar(0, 99)` | `[10] → [20] → [30]`  | `[99] → [20] → [30]` |
+| `atualizar(2, 99)` | `[10] → [20] → [30]`  | `[10] → [20] → [99]` |
+| `atualizar(5, 99)` | lista com 3 elementos | retorna `false`      |
+| `atualizar(0, 99)` | lista vazia           | retorna `false`      |
+
+> 💡 **Dica final:** o `atualizar` é o mais simples dos quatro — não mexe nos ponteiros `prox`, não precisa de slot livre, não muda `cabeca` nem `tamanho`. Só localiza e substitui.
 
 ## ▶ Como Executar 
 

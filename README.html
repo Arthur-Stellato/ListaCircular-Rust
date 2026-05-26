@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&#x1f980; Rust &mdash; Lista Circular Est&aacute;tica</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <span id="markdown-mermaid" aria-hidden="true" data-config="{&quot;darkModeTheme&quot;:&quot;dark&quot;,&quot;lightModeTheme&quot;:&quot;default&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
+				<h1 id="-rust--lista-circular-estática">🦀 Rust — Lista Circular Estática</h1>
+<p>Implementação de uma <strong>Lista Circular Estática</strong> em Rust com menu interativo no terminal.<br>
+Desenvolvido como material de apresentação acadêmica sobre estruturas de dados.</p>
+<hr>
+<h2 id="sumário">Sumário</h2>
+<ol>
+<li><a href="#-configura%C3%A7%C3%A3o-do-ambiente">Configuração do Ambiente</a></li>
+<li><a href="#-sintaxe-b%C3%A1sica--vari%C3%A1veis">Sintaxe Básica — Variáveis</a></li>
+<li><a href="#-hello-world">Hello World</a></li>
+<li><a href="#-o-que-%C3%A9-uma-lista-circular">O que é uma Lista Circular</a></li>
+<li><a href="#-explica%C3%A7%C3%A3o-do-c%C3%B3digo">Explicação do Código</a></li>
+<li><a href="#-como-executar">Como Executar</a></li>
+</ol>
+<hr>
+<h2 id="-configuração-do-ambiente">🛠 Configuração do Ambiente</h2>
+<h3 id="linux-ubuntu-debian-fedora-arch-entre-outros">Linux (Ubuntu, Debian, Fedora, Arch, entre outros)</h3>
+<p><strong>1. Instalar o Rust com rustup</strong></p>
+<p>Abra o terminal e cole o comando abaixo:</p>
+<pre><code class="language-bash">curl --proto <span class="hljs-string">&#x27;=https&#x27;</span> --tlsv1.2 -sSf https://sh.rustup.rs | sh
+</code></pre>
+<p>Quando perguntar, pressione <code>1</code> para instalação padrão.</p>
+<p><strong>2. Recarregar o PATH</strong></p>
+<pre><code class="language-bash"><span class="hljs-built_in">source</span> <span class="hljs-variable">$HOME</span>/.cargo/env
+</code></pre>
+<p><strong>3. Verificar a instalação</strong></p>
+<pre><code class="language-bash">rustc --version
+cargo --version
+</code></pre>
+<p>Saída esperada:</p>
+<pre><code>rustc 1.78.0 (9b00956e5 2024-04-29)
+cargo 1.78.0 (54d8815d0 2024-04-24)
+</code></pre>
+<hr>
+<h3 id="windows">Windows</h3>
+<p><strong>1. Instalar o Visual C++ Build Tools</strong></p>
+<p>O Rust precisa do compilador C++ da Microsoft.<br>
+Baixe em: <a href="https://visualstudio.microsoft.com/visual-cpp-build-tools/">https://visualstudio.microsoft.com/visual-cpp-build-tools/</a><br>
+Na instalação, marque <strong>Desktop development with C++</strong>.</p>
+<p><strong>2. Instalar o Rust</strong></p>
+<p>Baixe o instalador em: <a href="https://rustup.rs">https://rustup.rs</a><br>
+Execute o <code>.exe</code> e pressione <code>1</code> para instalação padrão.</p>
+<p><strong>3. Verificar no PowerShell</strong></p>
+<p>Abra um <strong>novo</strong> PowerShell (para o PATH carregar) e digite:</p>
+<pre><code class="language-powershell">rustc <span class="hljs-literal">--version</span>
+cargo <span class="hljs-literal">--version</span>
+</code></pre>
+<blockquote>
+<p>💡 <strong>Dica:</strong> instale a extensão <strong>rust-analyzer</strong> no VS Code para ter autocomplete, erros sublinhados e outras facilidades.</p>
+</blockquote>
+<hr>
+<h2 id="-sintaxe-básica--variáveis">📝 Sintaxe Básica — Variáveis</h2>
+<p>Em Rust, as variáveis são <strong>imutáveis por padrão</strong>. Para permitir alteração, use a palavra-chave <code>mut</code>.</p>
+<pre><code class="language-rust"><span class="hljs-keyword">let</span> <span class="hljs-variable">x</span> = <span class="hljs-number">5</span>;        <span class="hljs-comment">// imutável — não pode ser alterado</span>
+<span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">y</span> = <span class="hljs-number">10</span>;   <span class="hljs-comment">// mutável — pode ser alterado</span>
+y += <span class="hljs-number">1</span>;           <span class="hljs-comment">// permitido</span>
+</code></pre>
+<h3 id="tipos-comuns">Tipos comuns</h3>
+<pre><code class="language-rust"><span class="hljs-keyword">let</span> <span class="hljs-variable">inteiro</span>: <span class="hljs-type">i32</span>    = <span class="hljs-number">42</span>;     <span class="hljs-comment">// número inteiro com sinal</span>
+<span class="hljs-keyword">let</span> <span class="hljs-variable">positivo</span>: <span class="hljs-type">usize</span> = <span class="hljs-number">3</span>;      <span class="hljs-comment">// número positivo — usado para índices</span>
+<span class="hljs-keyword">let</span> <span class="hljs-variable">decimal</span>: <span class="hljs-type">f64</span>    = <span class="hljs-number">3.14</span>;   <span class="hljs-comment">// número decimal</span>
+<span class="hljs-keyword">let</span> <span class="hljs-variable">texto</span>: &amp;<span class="hljs-type">str</span>     = <span class="hljs-string">&quot;Rust&quot;</span>; <span class="hljs-comment">// texto fixo</span>
+<span class="hljs-keyword">let</span> <span class="hljs-variable">booleano</span>: <span class="hljs-type">bool</span>  = <span class="hljs-literal">true</span>;   <span class="hljs-comment">// verdadeiro ou falso</span>
+</code></pre>
+<h3 id="option--ausência-segura">Option — ausência segura</h3>
+<p>Rust não tem <code>null</code>. Quando um valor pode ou não existir, usa-se <code>Option&lt;T&gt;</code>:</p>
+<pre><code class="language-rust"><span class="hljs-keyword">let</span> <span class="hljs-variable">com_valor</span>: <span class="hljs-type">Option</span>&lt;<span class="hljs-type">i32</span>&gt; = <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-number">42</span>); <span class="hljs-comment">// existe um valor</span>
+<span class="hljs-keyword">let</span> <span class="hljs-variable">sem_valor</span>: <span class="hljs-type">Option</span>&lt;<span class="hljs-type">i32</span>&gt; = <span class="hljs-literal">None</span>;     <span class="hljs-comment">// não existe nada</span>
+</code></pre>
+<p>Para usar o valor dentro de um <code>Option</code>:</p>
+<pre><code class="language-rust"><span class="hljs-keyword">match</span> meu_option {
+    <span class="hljs-title function_ invoke__">Some</span>(v) =&gt; <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;valor: {}&quot;</span>, v),
+    <span class="hljs-literal">None</span>    =&gt; <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;não tem valor&quot;</span>),
+}
+</code></pre>
+<h3 id="self">self</h3>
+<p>Dentro dos métodos de uma struct, <code>self</code> representa a própria instância — equivalente ao <code>this</code> do Java:</p>
+<pre><code class="language-rust"><span class="hljs-keyword">self</span>.tamanho    <span class="hljs-comment">// acessa o campo tamanho da struct atual</span>
+<span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">inserir</span>()  <span class="hljs-comment">// chama outro método da mesma struct</span>
+</code></pre>
+<hr>
+<h2 id="-hello-world">👋 Hello World</h2>
+<p><strong>1. Criar um novo projeto</strong></p>
+<pre><code class="language-bash">cargo new meu_projeto
+<span class="hljs-built_in">cd</span> meu_projeto
+</code></pre>
+<p>O Cargo gera automaticamente a estrutura:</p>
+<pre><code>meu_projeto/
+├── Cargo.toml    ← metadados e dependências
+└── src/
+    └── main.rs   ← seu código
+</code></pre>
+<p><strong>2. Código em <code>src/main.rs</code></strong></p>
+<pre><code class="language-rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-comment">// println! é uma macro — note o !</span>
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;Olá, Mundo!&quot;</span>);
+
+    <span class="hljs-comment">// interpolação com {}</span>
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">nome</span> = <span class="hljs-string">&quot;Rust&quot;</span>;
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;Bem-vindo ao {}!&quot;</span>, nome);
+
+    <span class="hljs-comment">// interpolação direta com {variavel}</span>
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">versao</span> = <span class="hljs-number">2024</span>;
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;Versão: {versao}&quot;</span>);
+}
+</code></pre>
+<p><strong>3. Compilar e executar</strong></p>
+<pre><code class="language-bash">cargo run
+</code></pre>
+<p>Saída:</p>
+<pre><code>Olá, Mundo!
+Bem-vindo ao Rust!
+Versão: 2024
+</code></pre>
+<hr>
+<h2 id="-o-que-é-uma-lista-circular">🔄 O que é uma Lista Circular</h2>
+<p>Uma lista circular é uma estrutura de dados onde <strong>o último nó aponta de volta para o primeiro</strong>, formando um ciclo sem fim.</p>
+<pre><code>Lista comum:    [10] → [20] → [30] → None
+Lista circular: [10] → [20] → [30] → (volta para 10)
+</code></pre>
+<p>A diferença está em apenas um campo — o <code>proximo</code> do último nó:</p>
+<pre><code class="language-rust"><span class="hljs-comment">// lista comum: último nó aponta para nada</span>
+No { valor: <span class="hljs-number">30</span>, proximo: <span class="hljs-literal">None</span> }
+
+<span class="hljs-comment">// lista circular: último nó aponta para a cabeça</span>
+No { valor: <span class="hljs-number">30</span>, proximo: <span class="hljs-number">0</span> }  <span class="hljs-comment">// índice 0 = cabeça</span>
+</code></pre>
+<h3 id="por-que-usar-lista-circular">Por que usar lista circular?</h3>
+<table>
+<thead>
+<tr>
+<th>Situação</th>
+<th>Por quê a circular resolve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Escalonador de processos do SO</td>
+<td>cada processo recebe um tempo de CPU e o ciclo volta automaticamente</td>
+</tr>
+<tr>
+<td>Buffer de áudio/vídeo em loop</td>
+<td>o conteúdo se repete sem lógica extra</td>
+</tr>
+<tr>
+<td>Sistema de turnos em jogos</td>
+<td>após o último jogador, volta para o primeiro</td>
+</tr>
+</tbody>
+</table>
+<h3 id="lista-estática-vs-dinâmica">Lista estática vs dinâmica</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Estática (array)</th>
+<th>Dinâmica (Vec)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tamanho</td>
+<td>fixo — definido em <code>const MAX</code></td>
+<td>cresce conforme necessário</td>
+</tr>
+<tr>
+<td>Memória</td>
+<td>reservada em tempo de compilação</td>
+<td>alocada em tempo de execução</td>
+</tr>
+<tr>
+<td>Lista cheia</td>
+<td>precisa verificar</td>
+<td>impossível de estourar</td>
+</tr>
+</tbody>
+</table>
+<h3 id="gerenciamento-de-memória--rust-vs-outras-linguagens">Gerenciamento de memória — Rust vs outras linguagens</h3>
+<p>Em C e C++ com alocação dinâmica, o programador precisa alocar e liberar a memória manualmente:</p>
+<pre><code class="language-c"><span class="hljs-comment">// C — alocação manual</span>
+<span class="hljs-type">int</span> *lista = <span class="hljs-built_in">malloc</span>(<span class="hljs-keyword">sizeof</span>(<span class="hljs-type">int</span>) * MAX);
+<span class="hljs-keyword">if</span> (lista == <span class="hljs-literal">NULL</span>) { <span class="hljs-keyword">return</span>; } <span class="hljs-comment">// precisa verificar se funcionou</span>
+<span class="hljs-built_in">free</span>(lista);                   <span class="hljs-comment">// precisa liberar no final</span>
+</code></pre>
+<pre><code class="language-cpp"><span class="hljs-comment">// C++ — alocação manual</span>
+<span class="hljs-type">int</span> *lista = <span class="hljs-keyword">new</span> <span class="hljs-type">int</span>[MAX];
+<span class="hljs-keyword">if</span> (lista == <span class="hljs-literal">nullptr</span>) { <span class="hljs-keyword">return</span>; }
+<span class="hljs-keyword">delete</span>[] lista; <span class="hljs-comment">// precisa liberar no final</span>
+</code></pre>
+<p>Em Java a memória é gerenciada pelo <strong>Garbage Collector</strong> — um processo que roda em segundo plano e libera o que não está mais sendo usado. Simples para o programador, mas pode pausar o programa durante a limpeza.</p>
+<pre><code class="language-java"><span class="hljs-comment">// Java — sem alocação manual, mas com GC em runtime</span>
+<span class="hljs-type">int</span>[] lista = <span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[MAX];
+</code></pre>
+<p>Em Rust não tem alocação manual nem Garbage Collector — o compilador determina em tempo de compilação quando cada variável deve ser liberada. Zero custo em execução e zero risco de vazamento de memória.</p>
+<pre><code class="language-rust"><span class="hljs-comment">// Rust — array estático reservado em tempo de compilação</span>
+nos: [<span class="hljs-literal">None</span>; MAX] <span class="hljs-comment">// liberado automaticamente quando sai do escopo</span>
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>C</th>
+<th>C++</th>
+<th>Java</th>
+<th>Rust</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Aloca manualmente</td>
+<td>sim</td>
+<td>sim (dinâmico)</td>
+<td>não</td>
+<td>não</td>
+</tr>
+<tr>
+<td>Libera manualmente</td>
+<td>sim</td>
+<td>sim (dinâmico)</td>
+<td>não</td>
+<td>não</td>
+</tr>
+<tr>
+<td>Garbage Collector</td>
+<td>não</td>
+<td>não</td>
+<td>sim</td>
+<td>não</td>
+</tr>
+<tr>
+<td>Quem gerencia</td>
+<td>programador</td>
+<td>programador</td>
+<td>JVM em runtime</td>
+<td>compilador</td>
+</tr>
+<tr>
+<td>Custo em execução</td>
+<td>zero</td>
+<td>zero</td>
+<td>sim (pausas do GC)</td>
+<td>zero</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="-explicação-do-código">💻 Explicação do Código</h2>
+<h3 id="estrutura-dos-dados">Estrutura dos dados</h3>
+<pre><code class="language-rust"><span class="hljs-keyword">const</span> MAX: <span class="hljs-type">usize</span> = <span class="hljs-number">5</span>; <span class="hljs-comment">// tamanho máximo da lista</span>
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">ListaCircular</span>&lt;T: <span class="hljs-built_in">Copy</span> + std::fmt::Display + <span class="hljs-built_in">PartialEq</span>&gt; {
+    nos:     [<span class="hljs-type">Option</span>&lt;T&gt;; MAX], <span class="hljs-comment">// valores: Some = ocupado, None = vazio</span>
+    prox:    [<span class="hljs-type">usize</span>; MAX],     <span class="hljs-comment">// índice do próximo nó de cada posição</span>
+    cabeca:  <span class="hljs-type">Option</span>&lt;<span class="hljs-type">usize</span>&gt;,    <span class="hljs-comment">// índice do primeiro nó</span>
+    tamanho: <span class="hljs-type">usize</span>,            <span class="hljs-comment">// quantos nós estão ocupados</span>
+}
+</code></pre>
+<p>Em vez de ponteiros, a lista usa <strong>dois arrays paralelos</strong>:</p>
+<pre><code>posição:   0         1         2         3         4
+nos:   [Some(10)] [Some(20)] [Some(30)] [None]    [None]
+prox:  [   1    ] [   2    ] [   0    ] [  0  ]   [  0  ]
+                               ↑
+                          aponta para 0 — fecha o ciclo
+</code></pre>
+<p>A memória é <strong>contígua</strong> — todos os slots ficam lado a lado na memória, endereços sequenciais. A ordem lógica da lista é definida pelos ponteiros <code>prox</code>, não pela posição física no array.</p>
+<h3 id="construtor-new">Construtor <code>new</code></h3>
+<pre><code class="language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>() <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span> {
+    ListaCircular {
+        nos:     [<span class="hljs-literal">None</span>; MAX], <span class="hljs-comment">// todos os slots vazios</span>
+        prox:    [<span class="hljs-number">0</span>; MAX],    <span class="hljs-comment">// índices zerados</span>
+        cabeca:  <span class="hljs-literal">None</span>,        <span class="hljs-comment">// sem primeiro nó</span>
+        tamanho: <span class="hljs-number">0</span>,           <span class="hljs-comment">// lista vazia</span>
+    }
+}
+</code></pre>
+<p><code>Self</code> é um atalho para o nome da própria struct. <code>[None; MAX]</code> cria um array de MAX posições todas com o valor <code>None</code>.</p>
+<h3 id="auxiliares-internos">Auxiliares internos</h3>
+<p><strong><code>achar_slot_livre</code></strong> — procura uma posição <code>None</code> no array para guardar um novo nó:</p>
+<pre><code class="language-rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">achar_slot_livre</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;<span class="hljs-type">usize</span>&gt; {
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">i</span> <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>..MAX {
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.nos[i].<span class="hljs-title function_ invoke__">is_none</span>() { <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">Some</span>(i); }
+    }
+    <span class="hljs-literal">None</span> <span class="hljs-comment">// todos ocupados</span>
+}
+</code></pre>
+<p><strong><code>achar_cauda</code></strong> — percorre a lista até achar o nó cujo próximo é a cabeça:</p>
+<pre><code class="language-rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">achar_cauda</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">usize</span> {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">cab</span> = <span class="hljs-keyword">self</span>.cabeca.<span class="hljs-title function_ invoke__">unwrap</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">idx</span> = cab;
+    <span class="hljs-keyword">while</span> <span class="hljs-keyword">self</span>.prox[idx] != cab { idx = <span class="hljs-keyword">self</span>.prox[idx]; }
+    idx <span class="hljs-comment">// este nó aponta para a cabeça — é a cauda</span>
+}
+</code></pre>
+<p><strong><code>idx_na</code></strong> — caminha <code>pos</code> passos a partir da cabeça e retorna o índice físico:</p>
+<pre><code class="language-rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">idx_na</span>(&amp;<span class="hljs-keyword">self</span>, pos: <span class="hljs-type">usize</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">usize</span> {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">idx</span> = <span class="hljs-keyword">self</span>.cabeca.<span class="hljs-title function_ invoke__">unwrap</span>();
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">_</span> <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>..pos { idx = <span class="hljs-keyword">self</span>.prox[idx]; }
+    idx
+}
+</code></pre>
+<h3 id="inserir-no-início">Inserir no início</h3>
+<pre><code class="language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">inserir_inicio</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, valor: T) {
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.tamanho == MAX { <span class="hljs-keyword">return</span>; }           <span class="hljs-comment">// 1. lista cheia?</span>
+
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">slot</span> = <span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">achar_slot_livre</span>().<span class="hljs-title function_ invoke__">unwrap</span>(); <span class="hljs-comment">// 2. acha espaço vazio</span>
+    <span class="hljs-keyword">self</span>.nos[slot] = <span class="hljs-title function_ invoke__">Some</span>(valor);                <span class="hljs-comment">// 3. guarda o valor</span>
+
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.tamanho == <span class="hljs-number">0</span> {
+        <span class="hljs-keyword">self</span>.prox[slot] = slot;                  <span class="hljs-comment">// 4. único nó aponta para si</span>
+        <span class="hljs-keyword">self</span>.cabeca = <span class="hljs-title function_ invoke__">Some</span>(slot);
+    } <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">cabeca</span> = <span class="hljs-keyword">self</span>.cabeca.<span class="hljs-title function_ invoke__">unwrap</span>();
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">cauda</span>  = <span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">achar_cauda</span>();
+        <span class="hljs-keyword">self</span>.prox[slot] = cabeca;                <span class="hljs-comment">// 5. novo → antiga cabeça</span>
+        <span class="hljs-keyword">self</span>.prox[cauda] = slot;                 <span class="hljs-comment">//    cauda → novo</span>
+        <span class="hljs-keyword">self</span>.cabeca = <span class="hljs-title function_ invoke__">Some</span>(slot);                <span class="hljs-comment">//    novo vira a cabeça</span>
+    }
+
+    <span class="hljs-keyword">self</span>.tamanho += <span class="hljs-number">1</span>;                           <span class="hljs-comment">// 6. incrementa o tamanho</span>
+}
+</code></pre>
+<h3 id="inserir-no-fim">Inserir no fim</h3>
+<p>Idêntico ao <code>inserir_inicio</code> com <strong>uma única diferença</strong> — <code>self.cabeca</code> não é atualizada, porque o início da lista continua o mesmo:</p>
+<pre><code class="language-rust"><span class="hljs-comment">// inserir_inicio — última linha do else:</span>
+<span class="hljs-keyword">self</span>.cabeca = <span class="hljs-title function_ invoke__">Some</span>(slot);  <span class="hljs-comment">// ← atualiza a cabeça</span>
+
+<span class="hljs-comment">// inserir_fim — não tem essa linha</span>
+<span class="hljs-comment">//               a cabeça continua apontando para o mesmo nó</span>
+</code></pre>
+<h3 id="ler-próximo">Ler próximo</h3>
+<p>Recebe uma posição e retorna o valor do nó seguinte. Se for a cauda, retorna a cabeça — comportamento circular acontece naturalmente:</p>
+<pre><code class="language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">ler_proximo</span>(&amp;<span class="hljs-keyword">self</span>, pos: <span class="hljs-type">usize</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;T&gt; {
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.tamanho == <span class="hljs-number">0</span> || pos &gt;= <span class="hljs-keyword">self</span>.tamanho { <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span>; }
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">idx</span> = <span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">idx_na</span>(pos);       <span class="hljs-comment">// índice físico do nó na posição pos</span>
+    <span class="hljs-keyword">self</span>.nos[<span class="hljs-keyword">self</span>.prox[idx]]          <span class="hljs-comment">// valor do próximo nó</span>
+}
+</code></pre>
+<p>Exemplo com lista <code>[5] → [10] → [20] → [30]</code>:</p>
+<pre><code>ler_proximo(0) = 10   (próximo do 5)
+ler_proximo(3) = 5    (próximo do 30 volta para a cabeça)
+</code></pre>
+<h3 id="remover">Remover</h3>
+<pre><code class="language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">remover</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, pos: <span class="hljs-type">usize</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;T&gt; {
+    <span class="hljs-keyword">if</span> pos &gt;= <span class="hljs-keyword">self</span>.tamanho { <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span>; }  <span class="hljs-comment">// posição inválida</span>
+
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.tamanho == <span class="hljs-number">1</span> {                   <span class="hljs-comment">// único nó — limpa tudo</span>
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">idx</span> = <span class="hljs-keyword">self</span>.cabeca.<span class="hljs-title function_ invoke__">unwrap</span>();
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">valor</span> = <span class="hljs-keyword">self</span>.nos[idx].<span class="hljs-title function_ invoke__">take</span>();    <span class="hljs-comment">// take() tira o valor e deixa None</span>
+        <span class="hljs-keyword">self</span>.cabeca = <span class="hljs-literal">None</span>;
+        <span class="hljs-keyword">self</span>.tamanho = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">return</span> valor;
+    }
+
+    <span class="hljs-comment">// descobre o nó a remover (rem) e o anterior (ant)</span>
+    <span class="hljs-keyword">let</span> (rem, ant) = <span class="hljs-keyword">if</span> pos == <span class="hljs-number">0</span> {
+        (<span class="hljs-keyword">self</span>.cabeca.<span class="hljs-title function_ invoke__">unwrap</span>(), <span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">achar_cauda</span>())
+    } <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">a</span> = <span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">idx_na</span>(pos - <span class="hljs-number">1</span>);
+        (<span class="hljs-keyword">self</span>.prox[a], a)
+    };
+
+    <span class="hljs-keyword">self</span>.prox[ant] = <span class="hljs-keyword">self</span>.prox[rem];                    <span class="hljs-comment">// anterior pula o removido</span>
+    <span class="hljs-keyword">if</span> pos == <span class="hljs-number">0</span> { <span class="hljs-keyword">self</span>.cabeca = <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-keyword">self</span>.prox[rem]); } <span class="hljs-comment">// atualiza cabeça se necessário</span>
+
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">valor</span> = <span class="hljs-keyword">self</span>.nos[rem].<span class="hljs-title function_ invoke__">take</span>();  <span class="hljs-comment">// libera o slot</span>
+    <span class="hljs-keyword">self</span>.tamanho -= <span class="hljs-number">1</span>;
+    valor
+}
+</code></pre>
+<p>O <code>take()</code> retira o valor do <code>Option</code> e deixa <code>None</code> no lugar — libera o slot para uso futuro.</p>
+<h3 id="percorrer">Percorrer</h3>
+<pre><code class="language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">percorrer</span>(&amp;<span class="hljs-keyword">self</span>) {
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.tamanho == <span class="hljs-number">0</span> { <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;lista vazia&quot;</span>); <span class="hljs-keyword">return</span>; }
+
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">idx</span> = <span class="hljs-keyword">self</span>.cabeca.<span class="hljs-title function_ invoke__">unwrap</span>();
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">i</span> <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>..<span class="hljs-keyword">self</span>.tamanho {      <span class="hljs-comment">// exatamente N passos — sem loop infinito</span>
+        <span class="hljs-built_in">print!</span>(<span class="hljs-string">&quot;[{}]&quot;</span>, <span class="hljs-keyword">self</span>.nos[idx].<span class="hljs-title function_ invoke__">unwrap</span>());
+        <span class="hljs-keyword">if</span> i &lt; <span class="hljs-keyword">self</span>.tamanho - <span class="hljs-number">1</span> { <span class="hljs-built_in">print!</span>(<span class="hljs-string">&quot; → &quot;</span>); }
+        idx = <span class="hljs-keyword">self</span>.prox[idx];       <span class="hljs-comment">// avança para o próximo</span>
+    }
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot; → (HEAD)&quot;</span>);
+}
+</code></pre>
+<p>O <code>for</code> limitado ao <code>tamanho</code> é o que impede o loop infinito — sem ele os ponteiros seriam seguidos para sempre.</p>
+<h3 id="tabela-física">Tabela física</h3>
+<p>Mostra o estado interno dos dois arrays — útil para entender a diferença entre ordem lógica e ordem física:</p>
+<pre><code class="language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">tabela_fisica</span>(&amp;<span class="hljs-keyword">self</span>) {
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;  idx │ nos      │ prox&quot;</span>);
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;  ────┼──────────┼──────&quot;</span>);
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">i</span> <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>..MAX {
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">val</span> = <span class="hljs-keyword">match</span> <span class="hljs-keyword">self</span>.nos[i] {
+            <span class="hljs-title function_ invoke__">Some</span>(v) =&gt; <span class="hljs-built_in">format!</span>(<span class="hljs-string">&quot;{:&gt;8}&quot;</span>, v),
+            <span class="hljs-literal">None</span>    =&gt; <span class="hljs-string">&quot;  vazio  &quot;</span>.<span class="hljs-title function_ invoke__">to_string</span>(),
+        };
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">head</span> = <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.cabeca == <span class="hljs-title function_ invoke__">Some</span>(i) { <span class="hljs-string">&quot; ← HEAD&quot;</span> } <span class="hljs-keyword">else</span> { <span class="hljs-string">&quot;&quot;</span> };
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;   {}  │ {}  │  {}   │{}&quot;</span>, i, val, <span class="hljs-keyword">self</span>.prox[i], head);
+    }
+}
+</code></pre>
+<p>Exemplo de saída com lista <code>[5] → [10] → [20] → [30]</code>:</p>
+<pre><code>idx │ nos      │ prox
+────┼──────────┼──────
+ 0  │       10 │  1   │
+ 1  │       20 │  2   │
+ 2  │       30 │  3   │
+ 3  │        5 │  0   │ ← HEAD
+ 4  │   vazio  │  0   │
+</code></pre>
+<p>A ordem física no array é a ordem de inserção. A ordem lógica da lista começa pelo HEAD e segue os ponteiros <code>prox</code>.</p>
+<h3 id="menu-interativo">Menu interativo</h3>
+<p>O programa usa um <code>loop</code> — equivalente ao <code>do-while</code> de outras linguagens:</p>
+<pre><code class="language-rust"><span class="hljs-keyword">loop</span> {
+    <span class="hljs-title function_ invoke__">imprimir_menu</span>();                        <span class="hljs-comment">// mostra as opções</span>
+    io::<span class="hljs-title function_ invoke__">stdin</span>().<span class="hljs-title function_ invoke__">read_line</span>(&amp;<span class="hljs-keyword">mut</span> opcao);      <span class="hljs-comment">// espera o usuário digitar</span>
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">opcao</span> = opcao.<span class="hljs-title function_ invoke__">trim</span>();               <span class="hljs-comment">// remove o \n do Enter</span>
+
+    <span class="hljs-keyword">match</span> opcao {
+        <span class="hljs-string">&quot;1&quot;</span> =&gt; lista.<span class="hljs-title function_ invoke__">inserir_inicio</span>(v),
+        <span class="hljs-string">&quot;2&quot;</span> =&gt; lista.<span class="hljs-title function_ invoke__">inserir_fim</span>(v),
+        <span class="hljs-string">&quot;3&quot;</span> =&gt; lista.<span class="hljs-title function_ invoke__">ler_proximo</span>(pos),
+        <span class="hljs-string">&quot;4&quot;</span> =&gt; lista.<span class="hljs-title function_ invoke__">remover</span>(pos),
+        <span class="hljs-string">&quot;5&quot;</span> =&gt; lista.<span class="hljs-title function_ invoke__">percorrer</span>(),
+        <span class="hljs-string">&quot;6&quot;</span> =&gt; lista.<span class="hljs-title function_ invoke__">tabela_fisica</span>(),
+        <span class="hljs-string">&quot;0&quot;</span> =&gt; <span class="hljs-keyword">break</span>,                       <span class="hljs-comment">// sai do loop</span>
+        _   =&gt; <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;opção inválida&quot;</span>),  <span class="hljs-comment">// qualquer outra entrada</span>
+    }
+}
+</code></pre>
+<p>A leitura e conversão do valor digitado é feita diretamente:</p>
+<pre><code class="language-rust"><span class="hljs-keyword">let</span> <span class="hljs-variable">v</span>: <span class="hljs-type">i32</span>    = <span class="hljs-title function_ invoke__">ler</span>(<span class="hljs-string">&quot;valor&quot;</span>).<span class="hljs-title function_ invoke__">parse</span>().<span class="hljs-title function_ invoke__">unwrap</span>();
+<span class="hljs-keyword">let</span> <span class="hljs-variable">pos</span>: <span class="hljs-type">usize</span> = <span class="hljs-title function_ invoke__">ler</span>(<span class="hljs-string">&quot;posição&quot;</span>).<span class="hljs-title function_ invoke__">parse</span>().<span class="hljs-title function_ invoke__">unwrap</span>();
+</code></pre>
+<p><code>parse()</code> converte a <code>String</code> para o tipo anotado. O tipo é inferido pela anotação <code>: i32</code> ou <code>: usize</code> na variável.</p>
+<hr>
+<h2 id="️-desafio--implementar-o-atualizar">🏋️ Desafio — Implementar o <code>atualizar</code></h2>
+<p>A lista ainda não tem uma operação de <strong>atualização</strong>. Sua missão é implementar o método abaixo diretamente em <code>lista_circular_menu.rs</code>.</p>
+<h3 id="assinatura">Assinatura</h3>
+<pre><code class="language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">atualizar</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, pos: <span class="hljs-type">usize</span>, novo_valor: T) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">bool</span> {
+    <span class="hljs-comment">// retorna true se atualizou, false se a posição não existe</span>
+    todo!()
+}
+</code></pre>
+<h3 id="esqueleto-com-dicas">Esqueleto com dicas</h3>
+<pre><code class="language-rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">atualizar</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, pos: <span class="hljs-type">usize</span>, novo_valor: T) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">bool</span> {
+    <span class="hljs-comment">// 1. verifique se a posição é válida</span>
+    <span class="hljs-comment">//    dica: compare pos com self.tamanho</span>
+
+    <span class="hljs-comment">// 2. ache o índice físico do nó na posição lógica dada</span>
+    <span class="hljs-comment">//    dica: você já tem um auxiliar que faz exatamente isso</span>
+
+    <span class="hljs-comment">// 3. substitua o valor armazenado naquele slot</span>
+    <span class="hljs-comment">//    dica: self.nos[idx] é um Option&lt;T&gt; — atribua Some(novo_valor)</span>
+
+    <span class="hljs-comment">// 4. retorne true indicando sucesso</span>
+    todo!()
+}
+</code></pre>
+<h3 id="o-que-adicionar-no-main">O que adicionar no <code>main</code></h3>
+<p>No <code>match opcao { ... }</code> dentro do <code>loop</code>, adicione um novo braço:</p>
+<pre><code class="language-rust"><span class="hljs-string">&quot;7&quot;</span> =&gt; {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">pos</span>: <span class="hljs-type">usize</span> = <span class="hljs-title function_ invoke__">ler</span>(<span class="hljs-string">&quot;posição&quot;</span>).<span class="hljs-title function_ invoke__">parse</span>().<span class="hljs-title function_ invoke__">unwrap</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">v</span>: <span class="hljs-type">i32</span>     = <span class="hljs-title function_ invoke__">ler</span>(<span class="hljs-string">&quot;novo valor&quot;</span>).<span class="hljs-title function_ invoke__">parse</span>().<span class="hljs-title function_ invoke__">unwrap</span>();
+    <span class="hljs-keyword">if</span> lista.<span class="hljs-title function_ invoke__">atualizar</span>(pos, v) {
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;posição {} atualizada para {}&quot;</span>, pos, v);
+    } <span class="hljs-keyword">else</span> {
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;posição {} não existe (tamanho: {})&quot;</span>, pos, lista.tamanho);
+    }
+}
+</code></pre>
+<p>E adicione a opção ao menu impresso:</p>
+<pre><code class="language-rust"><span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;║  7 - Atualizar por posição   ║&quot;</span>);
+</code></pre>
+<h3 id="casos-de-teste">Casos de teste</h3>
+<table>
+<thead>
+<tr>
+<th>Operação</th>
+<th>Lista antes</th>
+<th>Resultado esperado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>atualizar(0, 99)</code></td>
+<td><code>[10] → [20] → [30]</code></td>
+<td><code>[99] → [20] → [30]</code></td>
+</tr>
+<tr>
+<td><code>atualizar(2, 99)</code></td>
+<td><code>[10] → [20] → [30]</code></td>
+<td><code>[10] → [20] → [99]</code></td>
+</tr>
+<tr>
+<td><code>atualizar(5, 99)</code></td>
+<td>lista com 3 elementos</td>
+<td>retorna <code>false</code></td>
+</tr>
+<tr>
+<td><code>atualizar(0, 99)</code></td>
+<td>lista vazia</td>
+<td>retorna <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>💡 <strong>Dica final:</strong> o <code>atualizar</code> é o mais simples dos quatro — não mexe nos ponteiros <code>prox</code>, não precisa de slot livre, não muda <code>cabeca</code> nem <code>tamanho</code>. Só localiza e substitui.</p>
+</blockquote>
+<h2 id="-como-executar">▶ Como Executar</h2>
+<p><strong>Compilar e rodar com Cargo:</strong></p>
+<pre><code class="language-bash">cargo run
+</code></pre>
+<p><strong>Ou compilar diretamente com rustc:</strong></p>
+<pre><code class="language-bash">rustc lista_circular_menu.rs -o lista_circular
+./lista_circular        <span class="hljs-comment"># Linux</span>
+lista_circular.exe      <span class="hljs-comment"># Windows</span>
+</code></pre>
+<hr>
+<h2 id="-referências">📚 Referências</h2>
+<ul>
+<li><a href="https://doc.rust-lang.org">Documentação oficial do Rust</a></li>
+<li><a href="https://doc.rust-lang.org/book/">The Rust Book — livro gratuito oficial</a></li>
+<li><a href="https://rustup.rs">rustup.rs — instalador oficial</a></li>
+</ul>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista Circular — Rust</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;600;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+
+<nav>
+  <span class="logo">&#x1F980; lista_circular.rs</span>
+  <a href="#instalacao">Instalação</a>
+  <a href="#sintaxe">Sintaxe</a>
+  <a href="#hello">Hello World</a>
+  <a href="#lista">Lista Circular</a>
+  <a href="#conclusao">Conclusão</a>
+  <a href="#github">GitHub</a>
+</nav>
+
+<section id="hero">
+  <span class="tag">UTFPR · Análise e Desenvolvimento de Sistemas</span>
+  <span class="tag">PROFESSOR · Clayton Kossoski· Estrutura de Dados</span>
+  <h1>Lista<br><span>Circular</span><br>em Rust</h1>
+  <p class="sub">Implementação de lista circular estática com array interno, usando os recursos únicos de segurança e tipagem do Rust.</p>
+  <div class="authors">
+    Arthur Gabriel Teotonio Stellato &nbsp;·&nbsp; Conrado Henrique Lima da Mata<br>
+    João Felipe Aleixo de Melo &nbsp;·&nbsp; Luis Gustavo Roque Desiderio da Silva<br>
+    Reinan Cordeiro Morais
+  </div>
+  <p class="scroll-hint">↓ &nbsp; SCROLL &nbsp; ↓</p>
+</section>
+
+<section id="instalacao">
+  <div class="fade-in">
+    <p class="sec-label">01 — Ambiente</p>
+    <h2>Instalação &amp;<br>Configuração</h2>
+    <p style="color:var(--muted);margin-bottom:2rem;max-width:560px;">
+      Rust é instalado via <strong style="color:var(--light)">rustup</strong>, o gerenciador oficial de toolchains. Ele instala o compilador <code style="font-family:'Share Tech Mono',monospace;color:var(--green)">rustc</code> e o Cargo, o gerenciador de pacotes e projetos.
+    </p>
+    <div class="three-col">
+      <div class="card">
+        <div class="step">1</div>
+        <h3>Instalar Rust</h3>
+        <p style="margin-bottom:.8rem;">Windows: acesse <strong style="color:var(--light)">rust-lang.org/tools/install</strong> e baixe o rustup-init.exe.<br><br>Linux / macOS:</p>
+        <div class="code-label">terminal</div>
+        <div class="code-block"><span class="c"># dependências (Linux)</span>
+sudo apt install curl build-essential -y
+
+<span class="c"># instalar via rustup</span>
+curl --proto <span class="s">'=https'</span> --tlsv1.2 \
+  -sSf https://sh.rustup.rs | sh</div>
+      </div>
+      <div class="card">
+        <div class="step">2</div>
+        <h3>Verificar Instalação</h3>
+        <p style="margin-bottom:.8rem;">Após a instalação, reinicie o terminal e confirme que os binários estão disponíveis:</p>
+        <div class="code-label">terminal</div>
+        <div class="code-block">rustc --version
+<span class="c"># rustc 1.xx.x ...</span>
+
+cargo --version
+<span class="c"># cargo 1.xx.x ...</span></div>
+      </div>
+      <div class="card">
+        <div class="step">3</div>
+        <h3>Criar e Executar</h3>
+        <p style="margin-bottom:.8rem;">O Cargo cria a estrutura do projeto automaticamente com um <code style="font-family:'Share Tech Mono';color:var(--green)">src/main.rs</code> pronto:</p>
+        <div class="code-label">terminal</div>
+        <div class="code-block">cargo new meu_projeto
+cd meu_projeto
+cargo run
+
+<span class="c"># Compiling meu_projeto
+# Hello, world!</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sintaxe">
+  <div class="fade-in">
+    <p class="sec-label">02 — Linguagem</p>
+    <h2>Sintaxe Básica<br>do Rust</h2>
+    <div class="two-col" style="margin-bottom:2rem;">
+      <div>
+        <h3>Variáveis &amp; Mutabilidade</h3>
+        <p style="color:var(--muted);font-size:.9rem;margin-bottom:.8rem;">
+          Em Rust toda variável é <strong style="color:var(--light)">imutável por padrão</strong>. Para permitir mudanças, declare com <span class="pill">mut</span>.
+        </p>
+        <div class="code-block"><span class="k">let x = 5;        // imutável – não pode mudar</span>
+<span class="k">let mut y = 10;    // mutável   – pode mudar</span>
+
+y = 20;           <span class="c">// ✓ funciona</span>
+x = 15;           <span class="c">// ✗ erro! x é imutável</span></div>
+      </div>
+      <div>
+        <h3>Funções</h3>
+        <p style="color:var(--muted);font-size:.9rem;margin-bottom:.8rem;">
+          Declaradas com <span class="pill">fn</span>. O tipo de retorno vem após <span class="pill">-&gt;</span>. A <strong style="color:var(--light)">última expressão sem ponto-e-vírgula</strong> é retornada implicitamente.
+        </p>
+        <div class="code-block"><span class="k">fn</span> <span class="f">maior</span>(a: <span class="n">i32</span>, b: <span class="n">i32</span>) -> <span class="n">i32</span> {
+    <span class="k">if</span> a > b {
+        <span class="k">return</span> a;  <span class="c">// retorno antecipado</span>
+    }
+    b              <span class="c">// retorno implícito</span>
+}</div>
+      </div>
+    </div>
+    <h3 style="margin-bottom:.8rem;">null vs None — A grande diferença do Rust</h3>
+    <p style="color:var(--muted);font-size:.9rem;max-width:700px;margin-bottom:1rem;">
+      Em linguagens como C, Java e JavaScript, <strong style="color:var(--light)">null</strong> é um valor especial atribuível a qualquer ponteiro ou referência — e acessar algo nulo em tempo de execução causa crashes (<em>NullPointerException</em>, segfault). Rust <strong style="color:var(--light)">elimina null completamente</strong>: em seu lugar existe <span class="pill">None</span>, uma variante do tipo <span class="pill">Option&lt;T&gt;</span> que o compilador obriga você a tratar.
+    </p>
+    <div class="two-col" style="margin-bottom:0;">
+      <div>
+        <div class="code-label">outras linguagens — null perigoso</div>
+        <div class="code-block" style="border-left-color:#e05252;"><span class="c">// Java / C / JavaScript</span>
+String nome = null;
+<span class="c">// crash silencioso em tempo de execução:</span>
+nome.length(); <span class="c">// NullPointerException !</span>
+
+<span class="c">// C</span>
+int *p = NULL;
+*p = 42; <span class="c">// segmentation fault !</span>
+
+<span class="c">// o compilador NÃO avisa — explode em produção</span></div>
+      </div>
+      <div>
+        <div class="code-label">Rust — None seguro e explícito</div>
+        <div class="code-block" style="border-left-color:var(--green);"><span class="c">// Rust — o tipo já diz que pode ser vazio</span>
+<span class="k">let</span> nome: <span class="n">Option</span>&lt;&amp;str&gt; = <span class="n">None</span>;
+
+<span class="c">// o compilador FORÇA o tratamento:</span>
+<span class="k">match</span> nome {
+    <span class="n">Some</span>(n) => <span class="m">println!</span>(<span class="s">"olá, {}"</span>, n),
+    <span class="n">None</span>    => <span class="m">println!</span>(<span class="s">"sem nome"</span>),
+}
+
+<span class="c">// esquecer o None = erro em compilação ✓</span></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1rem;margin-bottom:2rem;background:var(--code-bg);border-color:var(--code-border);border-left:3px solid var(--green);border-radius:6px;">
+      <p style="font-size:.88rem;color:var(--muted);">
+        <strong style="color:var(--green);">Resumo:</strong> <code style="font-family:'Share Tech Mono';color:var(--green)">None</code> não é um ponteiro nulo — é um <strong style="color:var(--light)">valor de tipo seguro</strong>. O compilador garante que você nunca acessa o conteúdo de um <code style="font-family:'Share Tech Mono';color:var(--green)">Option</code> sem antes verificar se ele é <code style="font-family:'Share Tech Mono';color:var(--green)">Some</code>. Isso elimina toda uma categoria de bugs que causam falhas em sistemas críticos escritos em C ou Java.
+      </p>
+    </div>
+
+    <h3 style="margin-bottom:1rem;">Conceitos-chave para a Lista Circular</h3>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1.2rem;margin-bottom:1rem;">
+      <div class="card"><span class="pill">struct</span><p style="margin-top:.6rem;">Agrupa dados relacionados. Define o nó e a lista em si.</p></div>
+      <div class="card"><span class="pill">impl</span><p style="margin-top:.6rem;">Adiciona métodos à struct: inserir, percorrer, editar, remover.</p></div>
+      <div class="card"><span class="pill">Option&lt;T&gt;</span><p style="margin-top:.6rem;">Tipo que representa "algo que pode existir ou não". Possui duas variantes: <code style="font-family:'Share Tech Mono';color:var(--green)">Some(v)</code> quando há valor, e <code style="font-family:'Share Tech Mono';color:var(--muted)">None</code> quando ausente.</p></div>
+      <div class="card"><span class="pill">Some(v)</span><p style="margin-top:.6rem;">Variante de <code style="font-family:'Share Tech Mono';color:var(--green)">Option</code> que <strong style="color:var(--light)">contém um valor</strong>. Usado ao inserir nós: <code style="font-family:'Share Tech Mono';color:var(--green)">Some(valor)</code> sinaliza que aquele slot está ocupado.</p></div>
+      <div class="card"><span class="pill">match</span><p style="margin-top:.6rem;">Desmonta um <code style="font-family:'Share Tech Mono';color:var(--green)">Option</code> com segurança, forçando o tratamento explícito de <code style="font-family:'Share Tech Mono';color:var(--green)">Some</code> e <code style="font-family:'Share Tech Mono';color:var(--muted)">None</code>.</p></div>
+    </div>
+    <div style="margin-top:1.5rem;">
+      <table class="syntax-table">
+        <thead><tr><th>Conceito</th><th>Exemplo</th><th>O que significa</th></tr></thead>
+        <tbody>
+          <tr><td>const</td><td><code style="font-family:'Share Tech Mono';color:#adc8ff">const MAX: usize = 5;</code></td><td>Constante em nível de módulo, avaliada em tempo de compilação</td></tr>
+          <tr><td>usize</td><td><code style="font-family:'Share Tech Mono';color:#adc8ff">prox: [usize; MAX]</code></td><td>Inteiro sem sinal do tamanho do ponteiro da plataforma — ideal para índices</td></tr>
+          <tr><td>Some(v)</td><td><code style="font-family:'Share Tech Mono';color:#adc8ff">self.nos[slot] = Some(valor)</code></td><td>Marca o slot como ocupado, envolvendo o valor numa variante segura de <code style="font-family:'Share Tech Mono'">Option</code></td></tr>
+          <tr><td>Option::take()</td><td><code style="font-family:'Share Tech Mono';color:#adc8ff">self.nos[idx].take()</code></td><td>Extrai o <code style="font-family:'Share Tech Mono'">Some(v)</code> e deixa <code style="font-family:'Share Tech Mono'">None</code> no lugar — libera o slot</td></tr>
+          <tr><td>unwrap()</td><td><code style="font-family:'Share Tech Mono';color:#adc8ff">self.cabeca.unwrap()</code></td><td>Extrai o valor de <code style="font-family:'Share Tech Mono'">Some(v)</code> — pânico se for <code style="font-family:'Share Tech Mono'">None</code></td></tr>
+          <tr><td>T genérico</td><td><code style="font-family:'Share Tech Mono';color:#adc8ff">struct ListaCircular&lt;T&gt;</code></td><td>Estrutura que funciona com qualquer tipo que implemente os traits exigidos</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="hello">
+  <div class="fade-in">
+    <p class="sec-label">03 — Primeiro Programa</p>
+    <h2>Hello, World!</h2>
+    <p style="color:var(--muted);max-width:560px;margin-bottom:2rem;">
+      O programa mais simples em Rust demonstra já os pilares da linguagem: o ponto de entrada obrigatório <span class="pill">fn main()</span> e as macros com <span class="pill">!</span>.
+    </p>
+    <div class="two-col">
+      <div>
+        <div class="code-label">src/main.rs</div>
+        <div class="code-block"><span class="k">fn</span> <span class="f">main</span>() {
+    <span class="m">println!</span>(<span class="s">"Hello, world!"</span>);
+}</div>
+        <div class="code-label" style="margin-top:1.2rem;">saída</div>
+        <div class="code-block" style="border-left-color:var(--green)">Hello, world!</div>
+      </div>
+      <div class="method-list">
+        <div class="method-item"><span class="method-name">fn main()</span><span class="method-desc">Ponto de entrada obrigatório de todo programa Rust.</span></div>
+        <div class="method-item"><span class="method-name">println!</span><span class="method-desc"><strong style="color:var(--light)">Macro</strong>, não função comum — o <code style="font-family:'Share Tech Mono';color:var(--accent)">!</code> indica isso.</span></div>
+        <div class="method-item"><span class="method-name">"Hello, world!"</span><span class="method-desc">String literal — tipo <code style="font-family:'Share Tech Mono';color:var(--green)">&str</code> em Rust.</span></div>
+        <div class="method-item"><span class="method-name">;</span><span class="method-desc">Ponto-e-vírgula transforma uma expressão em um statement.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="lista">
+  <div class="fade-in">
+    <p class="sec-label">04 — Estrutura de Dados</p>
+    <h2>Lista Circular<br>Estática</h2>
+
+    <div class="two-col" style="margin-bottom:2.5rem;align-items:center;">
+      <div>
+        <h3>O que é?</h3>
+        <p style="color:var(--muted);font-size:.9rem;margin-bottom:1rem;">
+          Diferente de uma lista encadeada simples, na lista circular o <strong style="color:var(--light)">último nó aponta de volta para o primeiro</strong>. Não existe um "fim" real — qualquer nó pode ser o ponto de partida.
+        </p>
+        <p style="color:var(--muted);font-size:.9rem;">
+          Nossa implementação usa dois arrays de tamanho fixo como backing store: <code style="font-family:'Share Tech Mono';color:var(--green)">nos[]</code> guarda os valores e <code style="font-family:'Share Tech Mono';color:var(--green)">prox[]</code> guarda os índices dos sucessores — sem alocação dinâmica.
+        </p>
+      </div>
+      <div>
+        <p style="font-size:.78rem;color:var(--muted);margin-bottom:.5rem;font-family:'Share Tech Mono',monospace;">LISTA SIMPLES</p>
+        <div class="circular-viz" style="justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;">
+          <div class="node head">10</div><span class="arrow">→</span>
+          <div class="node">20</div><span class="arrow">→</span>
+          <div class="node">30</div><span class="arrow">→</span>
+          <div class="node" style="color:var(--muted);border-color:var(--muted)">None</div>
+        </div>
+        <p style="font-size:.78rem;color:var(--muted);margin:.9rem 0 .5rem;font-family:'Share Tech Mono',monospace;">LISTA CIRCULAR</p>
+        <div class="circular-viz" style="justify-content:flex-start;flex-wrap:nowrap;">
+          <div class="node head">10</div><span class="arrow">→</span>
+          <div class="node">20</div><span class="arrow">→</span>
+          <div class="node">30</div><span class="arrow back">─┐</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-left:1.2rem;font-family:'Share Tech Mono',monospace;font-size:.82rem;">
+          <span style="color:var(--muted)">└───────────────────────┘</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:.8rem;">Estrutura interna</h3>
+    <div class="code-block" style="margin-bottom:2rem;"><span class="k">const</span> MAX: <span class="n">usize</span> = <span class="n">5</span>;  <span class="c">// capacidade máxima</span>
+
+<span class="k">struct</span> <span class="f">ListaCircular</span>&lt;T: Copy + Display + PartialEq&gt; {
+    nos:     [<span class="n">Option</span>&lt;T&gt;; MAX],  <span class="c">// armazena os valores</span>
+    prox:    [<span class="n">usize</span>; MAX],       <span class="c">// índice do próximo nó</span>
+    cabeca:  <span class="n">Option</span>&lt;<span class="n">usize</span>&gt;,     <span class="c">// índice do primeiro nó</span>
+    tamanho: <span class="n">usize</span>,              <span class="c">// elementos ativos</span>
+}</div>
+
+    <h3 style="margin-bottom:.4rem;">Inserção — Início vs. Fim</h3>
+    <p style="color:var(--muted);font-size:.88rem;margin-bottom:.8rem;">
+      Ambas as operações encontram um slot livre no array, inserem o valor e ajustam os ponteiros — a diferença está em <strong style="color:var(--light)">onde a cabeça é atualizada</strong>.
+    </p>
+
+    <div class="insert-compare">
+      <div class="insert-card inicio">
+        <div class="badge inicio">inserir_inicio</div>
+        <h3>Inserir no Início</h3>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:.8rem;">O novo nó <strong style="color:var(--light)">vira a nova cabeça</strong>. Seu <code style="font-family:'Share Tech Mono';color:var(--green)">prox</code> aponta para a cabeça anterior, e a cauda passa a apontar para ele.</p>
+        <div class="code-block" style="font-size:.76rem;"><span class="k">pub fn</span> <span class="f">inserir_inicio</span>(&amp;<span class="k">mut</span> self, valor: T) {
+    <span class="k">if</span> self.tamanho == MAX {
+        <span class="m">println!</span>(<span class="s">" lista cheia (máximo: {})"</span>, MAX);
+        <span class="k">return</span>;
+    }
+    <span class="k">let</span> slot = self.<span class="f">achar_slot_livre</span>().<span class="f">unwrap</span>();
+    self.nos[slot] = <span class="n">Some</span>(valor);
+    <span class="k">if</span> self.tamanho == <span class="n">0</span> {
+        self.prox[slot] = slot;
+        self.cabeca = <span class="n">Some</span>(slot);
+    } <span class="k">else</span> {
+        <span class="k">let</span> cabeca = self.cabeca.<span class="f">unwrap</span>();
+        <span class="k">let</span> cauda  = self.<span class="f">achar_cauda</span>();
+        self.prox[slot]  = cabeca;
+        self.prox[cauda] = slot;
+        self.cabeca = <span class="n">Some</span>(slot);
+    }
+    self.tamanho += <span class="n">1</span>;
+    <span class="m">println!</span>(<span class="s">"{} inserido no início"</span>, valor);
+}</div>
+        <div style="margin-top:.8rem;font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted);">
+          Antes:&nbsp; HEAD→[20]→[30]→(HEAD)<br>
+          Depois: HEAD→[<span style="color:var(--accent)">10</span>]→[20]→[30]→(HEAD)
+        </div>
+      </div>
+
+      <div class="vs-badge">VS</div>
+
+      <div class="insert-card fim">
+        <div class="badge fim">inserir_fim</div>
+        <h3 class="fim-title">Inserir no Fim</h3>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:.8rem;">A cabeça <strong style="color:var(--light)">não muda</strong>. O novo nó é encaixado após a cauda atual: a cauda aponta para éle, e ele fecha o ciclo apontando para a cabeça.</p>
+        <div class="code-block" style="font-size:.76rem;"><span class="k">pub fn</span> <span class="f">inserir_fim</span>(&amp;<span class="k">mut</span> self, valor: T) {
+    <span class="k">if</span> self.tamanho == MAX {
+        <span class="m">println!</span>(<span class="s">"lista cheia (máximo: {})"</span>, MAX);
+        <span class="k">return</span>;
+    }
+    <span class="k">let</span> slot = self.<span class="f">achar_slot_livre</span>().<span class="f">unwrap</span>();
+    self.nos[slot] = <span class="n">Some</span>(valor);
+    <span class="k">if</span> self.tamanho == <span class="n">0</span> {
+        self.prox[slot] = slot;
+        self.cabeca = <span class="n">Some</span>(slot);
+    } <span class="k">else</span> {
+        <span class="k">let</span> cabeca = self.cabeca.<span class="f">unwrap</span>();
+        <span class="k">let</span> cauda  = self.<span class="f">achar_cauda</span>();
+        self.prox[slot]  = cabeca;
+        self.prox[cauda] = slot;
+    }
+    self.tamanho += <span class="n">1</span>;
+    <span class="m">println!</span>(<span class="s">"{} inserido no fim"</span>, valor);
+}</div>
+        <div style="margin-top:.8rem;font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted);">
+          Antes:&nbsp; HEAD→[10]→[20]→(HEAD)<br>
+          Depois: HEAD→[10]→[20]→[<span style="color:var(--yellow)">30</span>]→(HEAD)
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:2.5rem;margin-bottom:.8rem;">Demais Métodos</h3>
+    <div class="method-list">
+      <div class="method-item">
+        <span class="method-name">ler_proximo(pos)</span>
+        <div><span class="method-desc">Navega até a posição dada e retorna o valor do nó seguinte via <code style="font-family:'Share Tech Mono';color:var(--green)">Option&lt;T&gt;</code>. Se a posição for a cauda, o "próximo" é a própria cabeça — demonstrando a circularidade.</span>
+        <div class="code-block" style="margin-top:.6rem;font-size:.76rem;"><span class="k">pub fn</span> <span class="f">ler_proximo</span>(&amp;self, pos: <span class="n">usize</span>) -> <span class="n">Option</span>&lt;T&gt; {
+    <span class="k">if</span> self.tamanho == <span class="n">0</span> || pos >= self.tamanho { <span class="k">return</span> <span class="n">None</span>; }
+    <span class="k">let</span> idx = self.<span class="f">idx_na</span>(pos);
+    <span class="k">if</span> self.prox[idx] == self.cabeca.<span class="f">unwrap</span>() {
+        <span class="m">println!</span>(<span class="s">"próximo de [{}] é a cabeça da lista"</span>, pos);
+    }
+    self.nos[self.prox[idx]]
+}</div></div>
+      </div>
+      <div class="method-item">
+        <span class="method-name">percorrer()</span>
+        <div>
+          <span class="method-desc">Imprime todos os nós partindo da cabeça. Um loop <code style="font-family:'Share Tech Mono';color:var(--accent)">for i in 0..tamanho</code> garante exatamente uma volta — evita loop infinito sem quebrar a estrutura circular. Também exibe os índices físicos de cada slot.</span>
+          <div class="code-block" style="margin-top:.6rem;font-size:.76rem;"><span class="k">pub fn</span> <span class="f">percorrer</span>(&amp;self) {
+    <span class="k">if</span> self.tamanho == <span class="n">0</span> {
+        <span class="m">println!</span>(<span class="s">"lista vazia"</span>);
+        <span class="k">return</span>;
+    }
+    <span class="c">// primeira passagem: valores</span>
+    <span class="m">print!</span>(<span class="s">"  HEAD → "</span>);
+    <span class="k">let mut</span> idx = self.cabeca.<span class="f">unwrap</span>();
+    <span class="k">for</span> i <span class="k">in</span> <span class="n">0</span>..self.tamanho {
+        <span class="m">print!</span>(<span class="s">"[{}]"</span>, self.nos[idx].<span class="f">unwrap</span>());
+        <span class="k">if</span> i &lt; self.tamanho - <span class="n">1</span> { <span class="m">print!</span>(<span class="s">" → "</span>); }
+        idx = self.prox[idx];
+    }
+    <span class="m">println!</span>(<span class="s">" → (HEAD)"</span>);
+    <span class="c">// segunda passagem: índices físicos</span>
+    <span class="m">print!</span>(<span class="s">"        "</span>);
+    idx = self.cabeca.<span class="f">unwrap</span>();
+    <span class="k">for</span> i <span class="k">in</span> <span class="n">0</span>..self.tamanho {
+        <span class="m">print!</span>(<span class="s">" {} "</span>, idx);
+        <span class="k">if</span> i &lt; self.tamanho - <span class="n">1</span> { <span class="m">print!</span>(<span class="s">"    "</span>); }
+        idx = self.prox[idx];
+    }
+    <span class="m">println!</span>();
+    <span class="m">println!</span>(<span class="s">"  tamanho: {}/{}"</span>, self.tamanho, MAX);
+}</div>
+        </div>
+      </div>
+      <div class="method-item">
+        <span class="method-name">remover(pos)</span>
+        <div>
+          <span class="method-desc">Trata três cenários: posição inválida (retorna <code style="font-family:'Share Tech Mono';color:var(--muted)">None</code>), único elemento (zera a lista), ou caso geral (faz o antecessor pular o nó removido). Se remover a cabeça, atualiza o ponteiro <code style="font-family:'Share Tech Mono';color:var(--green)">cabeca</code>.</span>
+          <div class="code-block" style="margin-top:.6rem;font-size:.76rem;"><span class="k">pub fn</span> <span class="f">remover</span>(&amp;<span class="k">mut</span> self, pos: <span class="n">usize</span>) -> <span class="n">Option</span>&lt;T&gt; {
+    <span class="c">// CENÁRIO A — posição inválida</span>
+    <span class="k">if</span> pos >= self.tamanho { <span class="k">return</span> <span class="n">None</span>; }
+
+    <span class="c">// CENÁRIO B — lista com UM único elemento</span>
+    <span class="k">if</span> self.tamanho == <span class="n">1</span> {
+        <span class="k">let</span> idx = self.cabeca.<span class="f">unwrap</span>();
+        <span class="k">let</span> valor = self.nos[idx].<span class="f">take</span>();
+        self.cabeca = <span class="n">None</span>;
+        self.tamanho = <span class="n">0</span>;
+        <span class="k">return</span> valor;
+    }
+    <span class="c">// CENÁRIO C — lista com 2+ elementos</span>
+    <span class="k">let</span> (rem, ant) = <span class="k">if</span> pos == <span class="n">0</span> {
+        (self.cabeca.<span class="f">unwrap</span>(), self.<span class="f">achar_cauda</span>())
+    } <span class="k">else</span> {
+        <span class="k">let</span> a = self.<span class="f">idx_na</span>(pos - <span class="n">1</span>); <span class="c">// acha o antecessor</span>
+        (self.prox[a], a)
+    };
+    self.prox[ant] = self.prox[rem]; <span class="c">// pula o nó removido</span>
+    <span class="k">if</span> pos == <span class="n">0</span> {
+        self.cabeca = <span class="n">Some</span>(self.prox[rem]); <span class="c">// atualiza cabeça</span>
+    }
+    <span class="k">let</span> valor = self.nos[rem].<span class="f">take</span>();
+    self.tamanho -= <span class="n">1</span>;
+    valor
+}</div>
+        </div>
+      </div>
+      <div class="method-item">
+        <span class="method-name">tabela_fisica()</span>
+        <div>
+          <span class="method-desc">Exibe o estado raw dos dois arrays internos: índice físico, valor armazenado (ou <em>vazio</em>), ponteiro <code style="font-family:'Share Tech Mono';color:var(--green)">prox</code>, e marcação de HEAD. Útil para depurar a estrutura interna e entender como os slots se relacionam.</span>
+          <div class="code-block" style="margin-top:.6rem;font-size:.76rem;"><span class="k">pub fn</span> <span class="f">tabela_fisica</span>(&amp;self) {
+    <span class="m">println!</span>(<span class="s">"  idx │ nos      │ prox"</span>);
+    <span class="m">println!</span>(<span class="s">"  ────┼──────────┼──────"</span>);
+    <span class="k">for</span> i <span class="k">in</span> <span class="n">0</span>..MAX {
+        <span class="k">let</span> val = <span class="k">match</span> self.nos[i] {
+            <span class="n">Some</span>(v) => <span class="f">format!</span>(<span class="s">"{:&gt;8}"</span>, v),
+            <span class="n">None</span>    => <span class="s">"  vazio  "</span>.<span class="f">to_string</span>(),
+        };
+        <span class="k">let</span> head = <span class="k">if</span> self.cabeca == <span class="n">Some</span>(i) {
+            <span class="s">" ← HEAD"</span>
+        } <span class="k">else</span> { <span class="s">""</span> };
+        <span class="m">println!</span>(<span class="s">"   {}  │ {}  │  {}   │{}"</span>,
+            i, val, self.prox[i], head);
+    }
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="conclusao">
+  <div class="fade-in">
+    <p class="sec-label">05 — Aplicações</p>
+    <h2>Conclusão &amp;<br>Onde é Usado</h2>
+
+    <h3 style="margin-bottom:.6rem;">Lista Circular — Aplicações Reais</h3>
+    <p style="color:var(--muted);font-size:.9rem;max-width:680px;margin-bottom:1.4rem;">
+      A estrutura circular permite navegar indefinidamente sem precisar reiniciar o índice, o que a torna ideal em cenários onde a <strong style="color:var(--light)">rotação contínua</strong> é essencial.
+    </p>
+
+    <div class="four-col" style="margin-bottom:2.8rem;">
+      <div class="card" style="border-top:3px solid var(--green);">
+        <h3 style="color:var(--green);font-size:1.05rem;">&#x23F1; Sistemas Operacionais</h3>
+        <p>Escalonamento de processos por <strong style="color:var(--light)">Round-Robin</strong>: a CPU visita cada processo na fila circular, garantindo que nenhum seja esquecido indefinidamente.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--yellow);">
+        <h3 style="color:var(--yellow);font-size:1.05rem;">&#x1F3AE; Jogos &amp; Animações</h3>
+        <p>Gerenciamento de <strong style="color:var(--light)">sprites ciclados</strong>, inventários em loop, sequências de animação frame-a-frame e trilhas de áudio em repetição contínua.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent);">
+        <h3 style="color:var(--accent);font-size:1.05rem;">&#x1F4E1; Redes &amp; Protocolos</h3>
+        <p><strong style="color:var(--light)">Buffers de anel</strong> (<em>ring buffers</em>) em comunicação serial, redes TCP/IP e streaming de áudio/vídeo, evitando realocações de memória.</p>
+      </div>
+      <div class="card" style="border-top:3px solid #79c0ff;">
+        <h3 style="color:#79c0ff;font-size:1.05rem;">&#x1F5A5; Interfaces &amp; UI</h3>
+        <p>Carrosséis de imagens, <strong style="color:var(--light)">playlists de música</strong>, histórico de desfazer/refazer (undo/redo) circular com tamanho fixo.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:.6rem;">Rust — Onde a Linguagem Brilha</h3>
+    <p style="color:var(--muted);font-size:.9rem;max-width:680px;margin-bottom:1.4rem;">
+      Rust combina desempenho de C/C++ com segurança de memória garantida pelo compilador — sem coletor de lixo. Isso o torna atraente para domínios onde falhas custam muito.
+    </p>
+
+    <div class="three-col" style="margin-bottom:1.8rem;">
+      <div class="card" style="border-top:3px solid var(--accent);">
+        <span class="pill">Sistemas &amp; Embarcados</span>
+        <ul style="margin-top:.8rem;">
+          <li><strong>Kernels &amp; OS</strong> — partes do kernel Linux já aceitam Rust; o sistema Redox OS é 100% Rust</li>
+          <li><strong>Firmware IoT</strong> — embassy, RTIC para microcontroladores sem SO</li>
+          <li><strong>Drivers de hardware</strong> — Google usa Rust no Android e ChromeOS</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--yellow);">
+        <span class="pill" style="border-color:var(--yellow);color:var(--yellow);">Web &amp; Nuvem</span>
+        <ul style="margin-top:.8rem;">
+          <li><strong>WebAssembly</strong> — Rust compila para WASM, rodando no browser com desempenho nativo</li>
+          <li><strong>Servidores HTTP</strong> — Actix-web e Axum lideram benchmarks de performance</li>
+          <li><strong>CLIs &amp; Ferramentas</strong> — ripgrep, fd, bat reescrevem utilitários Unix clássicos</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--green);">
+        <span class="pill" style="border-color:var(--green);color:var(--green);">Infraestrutura Crítica</span>
+        <ul style="margin-top:.8rem;">
+          <li><strong>Blockchain</strong> — Solana, Polkadot e Near Protocol são escritos em Rust</li>
+          <li><strong>Bancos de dados</strong> — TiKV (banco chave-valor do TiDB) usa Rust</li>
+          <li><strong>Segurança</strong> — Mozilla, Microsoft e Amazon migram partes críticas para eliminar CVEs de memória</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="background:var(--code-bg);border-color:var(--code-border);padding:1.2rem 1.6rem;">
+      <p style="font-family:'Share Tech Mono',monospace;font-size:.75rem;letter-spacing:.12em;color:var(--accent);margin-bottom:.7rem;">EMPRESAS &amp; PROJETOS NOTÁVEIS</p>
+      <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
+        <span class="pill">Mozilla Firefox</span>
+        <span class="pill">Google Android</span>
+        <span class="pill">Microsoft Windows</span>
+        <span class="pill">Amazon AWS</span>
+        <span class="pill">Meta (WhatsApp)</span>
+        <span class="pill">Cloudflare</span>
+        <span class="pill">Dropbox</span>
+        <span class="pill">Discord</span>
+        <span class="pill">npm Registry</span>
+        <span class="pill">Linux Kernel</span>
+        <span class="pill">Solana</span>
+        <span class="pill">Figma</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="github">
+  <div class="fade-in" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;">
+    <p class="sec-label" style="text-align:center;">06 — Repositório</p>
+    <h2 style="text-align:center;">Projeto no GitHub</h2>
+
+    <div class="gh-box" style="max-width:520px;">
+
+      <h3 style="margin-bottom:.4rem;">Repositório do Projeto</h3>
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:1.2rem;">
+        Código-fonte completo da lista circular estática implementada em Rust.
+      </p>
+
+      <div style="background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:.8rem 1rem;display:flex;align-items:center;gap:.7rem;margin-bottom:1.2rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--muted)" style="flex-shrink:0;"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.29 9.42 7.86 10.95.57.1.78-.25.78-.55v-2.1c-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.18-3.09-.12-.3-.51-1.47.11-3.06 0 0 .97-.31 3.17 1.18a11.02 11.02 0 0 1 2.89-.39c.98 0 1.97.13 2.89.39 2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.06.74.8 1.18 1.83 1.18 3.09 0 4.43-2.7 5.41-5.27 5.69.41.36.78 1.07.78 2.16v3.2c0 .3.2.66.79.55A10.51 10.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--light);">Arthur-Stellato / ListaCircular-Rust</span>
+      </div>
+
+      <a href="https://github.com/Arthur-Stellato/ListaCircular-Rust" target="_blank"
+         style="display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.8rem;background:var(--accent);color:var(--white);text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;letter-spacing:.06em;text-transform:uppercase;border-radius:5px;transition:background .2s;width:100%;justify-content:center;"
+         onmouseover="this.style.background='#ff2040'" onmouseout="this.style.background='var(--accent)'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.29 9.42 7.86 10.95.57.1.78-.25.78-.55v-2.1c-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.18-3.09-.12-.3-.51-1.47.11-3.06 0 0 .97-.31 3.17 1.18a11.02 11.02 0 0 1 2.89-.39c.98 0 1.97.13 2.89.39 2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.06.74.8 1.18 1.83 1.18 3.09 0 4.43-2.7 5.41-5.27 5.69.41.36.78 1.07.78 2.16v3.2c0 .3.2.66.79.55A10.51 10.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        Acessar Repositório
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <strong>RUST · LISTA CIRCULAR ESTÁTICA</strong><br>
+  UTFPR · Análise e Desenvolvimento de Sistemas · Estrutura de Dados · Prof. Clayton Kossoski
+</footer>
+
+</body>
+</html>
