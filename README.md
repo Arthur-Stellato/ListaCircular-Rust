@@ -500,9 +500,9 @@ let pos: usize = ler("posição").parse().unwrap();
 
 --- 
 
-## 🏋️ Desafio — Implementar o `atualizar`
+## Desafio — Implementar o `atualizar`
 
-A lista ainda não tem uma operação de **atualização**. Sua missão é implementar o método abaixo diretamente em `lista_circular_menu.rs`.
+A lista ainda não tem uma operação de **atualização**. Agora é implementar o método abaixo diretamente em `lista_circular_menu.rs`.
 
 ### Assinatura
 
