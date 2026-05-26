@@ -22,7 +22,7 @@ impl<T: Copy + std::fmt::Display + PartialEq> ListaCircular<T> {
 
     //Auxiliar para encontrar o primeiro slot livre no array de nós
     fn achar_slot_livre(&self) -> Option<usize> {
-        for i in 0..MAX { 
+        for i in 0..MAX {
             if self.nos[i].is_none() {
                 return Some(i);
             }
@@ -34,7 +34,8 @@ impl<T: Copy + std::fmt::Display + PartialEq> ListaCircular<T> {
     fn achar_cauda(&self) -> usize {
         let cab = self.cabeca.unwrap(); //Começa pela cabeça
         let mut idx = cab;
-        while self.prox[idx] != cab { // enquanto não voltar à cabeça
+        while self.prox[idx] != cab {
+            // enquanto não voltar à cabeça
             idx = self.prox[idx]; // Avança para o próximo
         }
         idx
@@ -42,8 +43,9 @@ impl<T: Copy + std::fmt::Display + PartialEq> ListaCircular<T> {
 
     // Auxiliar para encontrar o índice do elemento na posição lógica dada
     fn idx_na(&self, pos: usize) -> usize {
-        let mut idx = self.cabeca.unwrap();  // começa na cabeça (posição 0)
-        for _ in 0..pos { // avança 'pos' vezes
+        let mut idx = self.cabeca.unwrap(); // começa na cabeça (posição 0)
+        for _ in 0..pos {
+            // avança 'pos' vezes
             idx = self.prox[idx];
         }
         idx
@@ -114,20 +116,21 @@ impl<T: Copy + std::fmt::Display + PartialEq> ListaCircular<T> {
         if self.tamanho == 1 {
             let idx = self.cabeca.unwrap();
             let valor = self.nos[idx].take();
+            self.prox[idx] = 0; // Limpa o ponteiro lógico físico
             self.cabeca = None;
             self.tamanho = 0;
             return valor;
         }
-        
+
         // CENÁRIO C — lista com 2+ elementos
         let (rem, ant) = if pos == 0 {
             (self.cabeca.unwrap(), self.achar_cauda())
         } else {
-            let a = self.idx_na(pos - 1);  // acha o antecessor
-            (self.prox[a], a)  // (nó a remover, antecessor)
+            let a = self.idx_na(pos - 1); // acha o antecessor
+            (self.prox[a], a) // (nó a remover, antecessor)
         };
 
-        self.prox[ant] = self.prox[rem];  // pula o nó removido
+        self.prox[ant] = self.prox[rem]; // pula o nó removido
         if pos == 0 {
             self.cabeca = Some(self.prox[rem]); // atualiza cabeça
         }
@@ -202,7 +205,7 @@ fn main() {
 
     loop {
         println!("╔══════════════════════════════╗");
-        println!("║     LISTA CIRCULAR ESTÁTICA  ║");
+        println!("║      LISTA CIRCULAR ESTÁTICA  ║");
         println!("╠══════════════════════════════╣");
         println!("║  1 - Inserir no início       ║");
         println!("║  2 - Inserir no fim          ║");
@@ -221,27 +224,40 @@ fn main() {
 
         println!();
 
+        // Tratamento simples para evitar crash se o input do parse falhar
         match opcao {
             "1" => {
-                let v: i32 = ler("valor").parse().unwrap();
-                lista.inserir_inicio(v);
+                if let Ok(v) = ler("valor").parse::<i32>() {
+                    lista.inserir_inicio(v);
+                } else {
+                    println!("Entrada inválida.");
+                }
             }
             "2" => {
-                let v: i32 = ler("valor").parse().unwrap();
-                lista.inserir_fim(v);
+                if let Ok(v) = ler("valor").parse::<i32>() {
+                    lista.inserir_fim(v);
+                } else {
+                    println!("Entrada inválida.");
+                }
             }
             "3" => {
-                let pos: usize = ler("posição").parse().unwrap();
-                match lista.ler_proximo(pos) {
-                    Some(v) => println!("próximo de [{}] = {}", pos, v),
-                    None => println!("posição {} não existe (tamanho: {})", pos, lista.tamanho),
+                if let Ok(pos) = ler("posição").parse::<usize>() {
+                    match lista.ler_proximo(pos) {
+                        Some(v) => println!("próximo de [{}] = {}", pos, v),
+                        None => println!("posição {} não existe (tamanho: {})", pos, lista.tamanho),
+                    }
+                } else {
+                    println!("Entrada inválida.");
                 }
             }
             "4" => {
-                let pos: usize = ler("posição").parse().unwrap();
-                match lista.remover(pos) {
-                    Some(v) => println!("removido: {}", v),
-                    None => println!("posição {} não existe (tamanho: {})", pos, lista.tamanho),
+                if let Ok(pos) = ler("posição").parse::<usize>() {
+                    match lista.remover(pos) {
+                        Some(v) => println!("removido: {}", v),
+                        None => println!("posição {} não existe (tamanho: {})", pos, lista.tamanho),
+                    }
+                } else {
+                    println!("Entrada inválida.");
                 }
             }
             "5" => {
